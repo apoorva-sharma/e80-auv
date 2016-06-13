@@ -73,8 +73,8 @@ void setup() {
   Serial.println(F("Serial connection started")); Serial.println("");
 
   /* Initialize the Logger */
-  logger.include(&gps);
-  logger.include(&imu);
+  //logger.include(&gps);
+  //logger.include(&imu);
   logger.include(&stateEstimator);
   logger.init();
   
@@ -96,50 +96,50 @@ void setup() {
 
 /**************************************************************************/
 void loop() {
-  unsigned long current_time = millis();
-
-  if (current_time - last_loop >= LOOP_INTERVAL) {
+  unsigned long current_time = micros();
+  
+  if (current_time - last_loop >= LOOP_INTERVAL*1000) {
     last_loop = current_time;
     
-    Serial.print("/----");
+    //Serial.print("/----");
     Serial.println(current_time);  
   
     bool newGPSData;
     bool newIMUData;
 
     // Gather data from sensors
-    newIMUData = imu.read();
-    newGPSData = gps.read();
+    //newIMUData = imu.read();
+    //newGPSData = gps.read();
   
     // Use Data
     if (newIMUData) {
-      Serial.print(" ");
+      //Serial.print(" ");
       imu.printState();
-      stateEstimator.incorporateIMU(&imu.state);
+      //stateEstimator.incorporateIMU(&imu.state);
     }
 
     if (newGPSData) {
-      Serial.print(" ");
+      //Serial.print(" ");
       gps.printState();
-      stateEstimator.incorporateGPS(&gps.state);
+      //stateEstimator.incorporateGPS(&gps.state);
     }
 
     // Print current state estimate
-    stateEstimator.printState();
+    //stateEstimator.printState();
 
     // Controllers
     pathController.control(&stateEstimator, &desiredPosition);
-    Serial.print("goal x:"); Serial.print(desiredPosition.x); Serial.print(" y:"); Serial.println(desiredPosition.y);
+    //Serial.print("goal x:"); Serial.print(desiredPosition.x); Serial.print(" y:"); Serial.println(desiredPosition.y);
     velocityController.control(&stateEstimator, &desiredPosition, &desiredVelocities);
-    Serial.print("v:"); Serial.print(desiredVelocities.v); Serial.print(" w:"); Serial.println(desiredVelocities.w); 
+    //erial.print("v:"); Serial.print(desiredVelocities.v); Serial.print(" w:"); Serial.println(desiredVelocities.w); 
     motorController.control(&stateEstimator, &desiredVelocities, &motorDriver);
 
-    motorDriver.apply();
+    //motorDriver.apply();
     
-    // stateEstimator.incorporateControl(&motorDriver);
+    stateEstimator.incorporateControl(&motorDriver);
     
     // Log at every LOG_INTERVAL
-    if (current_time - last_log >= LOG_INTERVAL) {
+    if (current_time - last_log >= LOG_INTERVAL*1000) {
       last_log = current_time;
   
       unsigned long time_before_log = millis();
@@ -147,8 +147,9 @@ void loop() {
       unsigned long time_after_log = millis();
       Serial.print("Time taken to log row: "); 
       Serial.println(time_after_log - time_before_log);
-    }    
+    }
     
-    Serial.println("\\----");
+    Serial.println(micros()-current_time);
+    //Serial.println("\\----");
   }
 }

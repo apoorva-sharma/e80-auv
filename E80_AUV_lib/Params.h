@@ -25,7 +25,7 @@
 
 /* TIMING */
 // how long the GPS data transfer function should take, in milliseconds
-#define GPS_READ_INTERVAL 30
+#define GPS_READ_INTERVAL 10
 
 
 /* PINS */

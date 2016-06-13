@@ -54,14 +54,14 @@ void StateEstimator::incorporateControl(MotorDriver* motorDriver_p)
 
   state.v = sum / LIN_VEL_CONST;
   state.w = diff / ROT_VEL_CONST;
-  Serial.print("Calculated v:"); Serial.print(state.v);
-  Serial.print(" w:"); Serial.println(state.w);
+  //Serial.print("Calculated v:"); Serial.print(state.v);
+  //Serial.print(" w:"); Serial.println(state.w);
   // forward euler update
   float vx = state.v*cos(state.heading);
   float vy = state.v*sin(state.heading);
 
-  Serial.print("Calculated vx:"); Serial.print(vx);
-  Serial.print(" vy:"); Serial.println(vy);
+  //Serial.print("Calculated vx:"); Serial.print(vx);
+  //Serial.print(" vy:"); Serial.println(vy);
 
   state.x += vx*loop_period;
   state.y += vy*loop_period;
