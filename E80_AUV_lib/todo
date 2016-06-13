@@ -1,0 +1,11 @@
+todo
+
+convert all lat lon to floats
+
+make sensor init's return success status
+
+improve logging precision
+
+failsafes (e.g., no sd card, no sensor, etc.)
+
+write and test analog pin reader class SensorPin.h

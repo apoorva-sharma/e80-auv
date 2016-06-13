@@ -1,0 +1,68 @@
+
+/*
+ * File:   SensorIMU.cpp
+ * Author: Apoorva Sharma (asharma@hmc.edu)
+ *
+ * Created on 10 June 2016
+ */
+
+#include "SensorIMU.h"
+#include "Params.h"
+
+SensorIMU::SensorIMU(Adafruit_9DOF * dof_p_, Adafruit_LSM303_Accel_Unified * accel_p_, 
+    Adafruit_LSM303_Mag_Unified * mag_p_, Adafruit_L3GD20_Unified * gyro_p_)
+  : DataSource("axIMU,ayIMU,azIMU,wxIMU,wyIMU,wzIMU,rollIMU,pitchIMU,headingIMU"), 
+    dof_p(dof_p_), accel_p(accel_p_), mag_p(mag_p_), gyro_p(gyro_p_)
+{  
+}
+
+void SensorIMU::init(void)
+{
+  accel_p->begin();
+  mag_p->begin();
+  gyro_p->begin();
+}
+
+bool SensorIMU::read(void)
+{
+  sensors_event_t accel_event;
+  sensors_event_t mag_event;
+  sensors_event_t gyro_event;
+  
+  /* Read the accelerometer and magnetometer */
+  accel_p->getEvent(&accel_event);
+  mag_p->getEvent(&mag_event);
+  gyro_p->getEvent(&gyro_event);
+  
+  state.acceleration = accel_event.acceleration; // TODO remove gravity from this acceleration
+  state.omega = gyro_event.gyro;
+
+  return dof_p->fusionGetOrientation(&accel_event, &mag_event, &state.orientation);
+}
+
+void SensorIMU::printState(void)
+{
+  Serial.print("IMU: ax:"); Serial.print(state.acceleration.x);
+  Serial.print(" ay:"); Serial.print(state.acceleration.y);
+  Serial.print(" az:"); Serial.print(state.acceleration.z);
+  Serial.print(" wx:"); Serial.print(state.omega.x);
+  Serial.print(" wy:"); Serial.print(state.omega.y);
+  Serial.print(" wz:"); Serial.print(state.omega.z);
+  Serial.print(" roll:"); Serial.print(state.orientation.roll);
+  Serial.print(" pitch:"); Serial.print(state.orientation.pitch);
+  Serial.print(" heading:"); Serial.print(state.orientation.heading);
+  Serial.println("");
+}
+
+void SensorIMU::getCSVString(String * csvStr_p)
+{
+  *csvStr_p += String(state.acceleration.x); *csvStr_p += ",";
+  *csvStr_p += String(state.acceleration.y); *csvStr_p += ",";
+  *csvStr_p += String(state.acceleration.z); *csvStr_p += ",";
+  *csvStr_p += String(state.omega.x); *csvStr_p += ",";
+  *csvStr_p += String(state.omega.y); *csvStr_p += ",";
+  *csvStr_p += String(state.omega.z); *csvStr_p += ",";
+  *csvStr_p += String(state.orientation.roll); *csvStr_p += ",";
+  *csvStr_p += String(state.orientation.pitch); *csvStr_p += ",";
+  *csvStr_p += String(state.orientation.heading);
+}
