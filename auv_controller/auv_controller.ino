@@ -72,16 +72,6 @@ void setup() {
   delay(2000); // Wait to ensure computer monitor is ready
   Serial.println(F("Serial connection started")); Serial.println("");
 
-  /* Initialize the Logger */
-  //logger.include(&gps);
-  //logger.include(&imu);
-  logger.include(&stateEstimator);
-  logger.init();
-  
-  /* Initialise the sensors */
-  gps.init();
-  imu.init();
-
   // Determine GPS origin
   // 34.103835, -117.708172 is the center of the circle in scripps pool
   float lat = 34.10383;
@@ -92,6 +82,16 @@ void setup() {
 
   /* init the pathController */
   pathController.init("traj.txt", &stateEstimator, &desiredPosition);
+
+  /* Initialize the Logger */
+  logger.include(&gps);
+  logger.include(&imu);
+  logger.include(&stateEstimator);
+  logger.init();
+  
+  /* Initialise the sensors */
+  gps.init();
+  imu.init();
 }
 
 /**************************************************************************/
@@ -108,8 +108,8 @@ void loop() {
     bool newIMUData;
 
     // Gather data from serial sensors
-    //newIMUData = imu.read();
-    //newGPSData = gps.read();
+    newIMUData = imu.read(); // this is a sequence of blocking I2C read calls
+    newGPSData = gps.read(); // this is a sequence of UART reads, bounded by a time
   
     // Use Data
     if (newIMUData) {
@@ -133,7 +133,6 @@ void loop() {
     motorController.control(&stateEstimator, &desiredVelocities, &motorDriver);
 
     //motorDriver.apply();
-    
     stateEstimator.incorporateControl(&motorDriver);
     
     // Log at every LOG_INTERVAL
@@ -141,7 +140,7 @@ void loop() {
       last_log = current_time;
   
       unsigned long time_before_log = millis();
-      logger.log(current_time);
+      logger.log(current_time); // this a blocking sequence of comamnds sent over SPI
       unsigned long time_after_log = millis();
       Serial.print("Time taken to log row: "); 
       Serial.println(time_after_log - time_before_log);
