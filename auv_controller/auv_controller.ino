@@ -30,6 +30,10 @@
 #include <Logger.h>
 
 
+#include <Params.h>
+
+
+
 /* Global Variables */
 // Timing
 unsigned long last_loop = 0;
@@ -72,6 +76,16 @@ void setup() {
   delay(2000); // Wait to ensure computer monitor is ready
   Serial.println(F("Serial connection started")); Serial.println("");
 
+  Serial.print("\nLogger: Initializing SD card...");
+
+  // see if the card is present and can be initialized:
+  if (!SD.begin(SD_CHIP_SELECT)) {
+    Serial.println("Card failed, or not present");
+    // don't do anything more:
+    return;
+  }
+  Serial.println("Card initialized.");
+
   // Determine GPS origin
   // 34.103835, -117.708172 is the center of the circle in scripps pool
   float lat = 34.10383;
@@ -108,8 +122,8 @@ void loop() {
     bool newIMUData;
 
     // Gather data from serial sensors
-    newIMUData = imu.read(); // this is a sequence of blocking I2C read calls
-    newGPSData = gps.read(); // this is a sequence of UART reads, bounded by a time
+    //newIMUData = imu.read(); // this is a sequence of blocking I2C read calls
+    //newGPSData = gps.read(); // this is a sequence of UART reads, bounded by a time
   
     // Use Data
     if (newIMUData) {

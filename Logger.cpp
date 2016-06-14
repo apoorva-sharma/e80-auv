@@ -34,16 +34,6 @@ void Logger::padding(int number, byte width, String & str) {
 
 void Logger::init(void)
 {
-  Serial.print("\nLogger: Initializing SD card...");
-
-  // see if the card is present and can be initialized:
-  if (!SD.begin(SD_CHIP_SELECT)) {
-    Serial.println("Card failed, or not present");
-    // don't do anything more:
-    return;
-  }
-  Serial.println("Card initialized.");
-
   // Determine logfilename by finding the first X such that basenameX is not
   // already on the SD card.
   unsigned int number = 0;
