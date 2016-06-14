@@ -1,7 +1,9 @@
 # e80-auv
 Arduino project for the Teensy microcontroller used for the HMC E80 AUV
 
-Copy E80_AUV_lib to the Arduino libraries folder to build the main auv_controller.ino file.
+Copy this folder into the Arduino libraries folder.
+
+The main arduino sketch is in the auv_controller folder.
 
 
 ## Main Classes
@@ -23,7 +25,7 @@ These classes are wrappers for the IMU and GPS sensors, offering functions to po
 
 ### StateEstimator
 
-The `StateEstimator` class defines an object which handles all the state estimation of the robot. It keeps an internal `state` struct which stores the current estimate of the state. It is `init`ialized with the loop period (in seconds) and the origin gps coordinates (in 10^-5 deg).
+The `StateEstimator` class defines an object which handles all the state estimation of the robot. It keeps an internal `state` struct which stores the current estimate of the state. It is `init`ialized with the loop period (in seconds) and the origin gps coordinates.
 
 It includes functions to incorporate data from the IMU and GPS, as well as a function which takes in the current commanded motor drive and applies an forward kinematic model to determine the state of the robot after one loop period.
 
