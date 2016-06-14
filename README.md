@@ -29,3 +29,34 @@ It includes functions to incorporate data from the IMU and GPS, as well as a fun
 
 It also implements the `DataSource` interface to plug into the `Logger` framework.
 
+### PathController
+
+The `PathController` class defines an object that handles switching the waypoint the robot is following. Upon initialization, the object reads in a trajectory from a file called "traj.txt" on the SD card. This file is written such that each line defines a waypoint, in the format:
+
+```
+latitude,longitude,orientation
+```
+
+The `control` function takes in the current state, and a pointer to the desired waypoint. It updates the desired waypoint if the the distance between the robot and the waypoint is less than a certain success radius.
+
+### VelocityController
+
+The VelocityController's `control` function takes in the current state and desired waypoint, and from them, computes the necessary linear and rotational velocities using P control on the distance error, the error between the heading of the robot and the heading needed to move toward the goal position, and the error between the heading of the robot and the desired heading at the waypoint.
+
+It implements the [controller described on the HMC 190Q website](https://www.hmc.edu/lair/E190Q/E190Q-Lecture04-PointTracking.pdf). 
+
+### MotorController
+
+The `control` function in the MotorController takes in the current state and the desired velocities as commanded by the velocity controller. It then determines at what speed to spin the motors, and sets these speeds in the motorDriver
+
+As of now these speeds are calculated using the assumption that the robot's terminal linear velocity is proportional to the sum of the two motor speeds, and that the robot's terminal rotational velocity is proportional to the difference of the two motor speeds, and that the time needed to achieve these terminal velocities is small. This is a completely untested assumption as of now.
+
+### MotorDriver
+
+The `MotorDriver` class defines an object that handles the actual driving of the robot. The public `left` and `right` integer datamembers can be set to numbers from -127 to +127, representing max reverse and forward speeds respectively.
+
+The `apply` function determins what PWM signals to send to which pins based upon these values, and sets up the PWM module to send the appropriate signals.
+
+### Params.h
+
+This file `#define`s several constants which are used throughout the codebase.
