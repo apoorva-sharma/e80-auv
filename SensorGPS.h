@@ -14,8 +14,8 @@
 #include "DataSource.h"
 
 typedef struct {
-  long lat;
-  long lon;
+  float lat;
+  float lon;
   unsigned long age;
   float hdop;
   int num_sat;

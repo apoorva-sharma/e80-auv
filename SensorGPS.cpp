@@ -54,7 +54,7 @@ void SensorGPS::getCSVString(String * csvStr_p)
 
 void SensorGPS::updateState(void)
 {
-  gps.get_position(&state.lat, &state.lon, &state.age);
+  gps.f_get_position(&state.lat, &state.lon, &state.age);
   state.hdop = gps.hdop()*1.0/100;
   state.num_sat = gps.satellites();
 }

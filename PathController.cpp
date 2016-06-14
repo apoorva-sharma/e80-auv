@@ -52,7 +52,7 @@ void PathController::init(char* trajFileName, StateEstimator* stateEstimator_p, 
     Serial.println("Trajectory: ");
     for (i = 0; i < num_waypoints; ++i) {
       float x; float y;
-      stateEstimator_p->latlonToXY(100000*trajectory[i].x, 100000*trajectory[i].y, &x, &y);
+      stateEstimator_p->latlonToXY(trajectory[i].x, trajectory[i].y, &x, &y);
       trajectory[i].x = x;
       trajectory[i].y = y;
 

@@ -9,3 +9,7 @@ improve logging precision
 failsafes (e.g., no sd card, no sensor, etc.)
 
 write and test analog pin reader class SensorPin.h
+
+timing
+
+logging speed improvements

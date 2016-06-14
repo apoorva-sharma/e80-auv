@@ -84,8 +84,8 @@ void setup() {
 
   // Determine GPS origin
   // 34.103835, -117.708172 is the center of the circle in scripps pool
-  long lat = 3410383;
-  long lon = -11770817;
+  float lat = 34.10383;
+  float lon = -117.70817;
   
   /* init the stateEstimator with an origin lat/lon */
   stateEstimator.init(0.1,lat,lon);
@@ -101,26 +101,26 @@ void loop() {
   if (current_time - last_loop >= LOOP_INTERVAL*1000) {
     last_loop = current_time;
     
-    //Serial.print("/----");
+    Serial.print("/----");
     Serial.println(current_time);  
   
     bool newGPSData;
     bool newIMUData;
 
-    // Gather data from sensors
+    // Gather data from serial sensors
     //newIMUData = imu.read();
     //newGPSData = gps.read();
   
     // Use Data
     if (newIMUData) {
       //Serial.print(" ");
-      imu.printState();
+      //imu.printState();
       //stateEstimator.incorporateIMU(&imu.state);
     }
 
     if (newGPSData) {
       //Serial.print(" ");
-      gps.printState();
+      //gps.printState();
       //stateEstimator.incorporateGPS(&gps.state);
     }
 
@@ -129,9 +129,7 @@ void loop() {
 
     // Controllers
     pathController.control(&stateEstimator, &desiredPosition);
-    //Serial.print("goal x:"); Serial.print(desiredPosition.x); Serial.print(" y:"); Serial.println(desiredPosition.y);
     velocityController.control(&stateEstimator, &desiredPosition, &desiredVelocities);
-    //erial.print("v:"); Serial.print(desiredVelocities.v); Serial.print(" w:"); Serial.println(desiredVelocities.w); 
     motorController.control(&stateEstimator, &desiredVelocities, &motorDriver);
 
     //motorDriver.apply();
@@ -150,6 +148,6 @@ void loop() {
     }
     
     Serial.println(micros()-current_time);
-    //Serial.println("\\----");
+    Serial.println("\\----");
   }
 }

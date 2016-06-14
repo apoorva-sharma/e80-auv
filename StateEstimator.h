@@ -36,7 +36,7 @@ public:
   StateEstimator(void);
 
   // init
-  void init(double loop_period, long orig_lat, long orig_lon);
+  void init(double loop_period, float orig_lat, float orig_lon);
 
   // Data incorporation
   void incorporateIMU(imu_state_t * imu_state_p);
@@ -47,15 +47,15 @@ public:
   state_t state;
   void printState(void);
 
-  void latlonToXY(long lat, long lon, float* x_p, float* y_p);
+  void latlonToXY(float lat, float lon, float* x_p, float* y_p);
 
   // from DataSource
   void getCSVString(String * csvStr_p); // implement DataSource's virtual func
 
 private:
   double loop_period;
-  long orig_lat;
-  long orig_lon;
+  float orig_lat;
+  float orig_lon;
   float cosOrigLat;
 };
 

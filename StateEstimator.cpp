@@ -16,7 +16,7 @@ StateEstimator::StateEstimator(void)
   : DataSource(String("x,y,heading,v,w")) // from DataSource
 {}
 
-void StateEstimator::init(double period, long lat, long lon)
+void StateEstimator::init(double period, float lat, float lon)
 {
   loop_period = period;
   orig_lat = lat;
@@ -26,7 +26,7 @@ void StateEstimator::init(double period, long lat, long lon)
   state.v = 0;
   state.w = 0;
   state.heading = 0;
-  cosOrigLat = cos(orig_lat*1.0/100000*M_PI/180.0);
+  cosOrigLat = cos(orig_lat*M_PI/180.0);
 }
 
 void StateEstimator::incorporateIMU(imu_state_t * imu_state_p)
@@ -54,14 +54,10 @@ void StateEstimator::incorporateControl(MotorDriver* motorDriver_p)
 
   state.v = sum / LIN_VEL_CONST;
   state.w = diff / ROT_VEL_CONST;
-  //Serial.print("Calculated v:"); Serial.print(state.v);
-  //Serial.print(" w:"); Serial.println(state.w);
+
   // forward euler update
   float vx = state.v*cos(state.heading);
   float vy = state.v*sin(state.heading);
-
-  //Serial.print("Calculated vx:"); Serial.print(vx);
-  //Serial.print(" vy:"); Serial.println(vy);
 
   state.x += vx*loop_period;
   state.y += vy*loop_period;
@@ -85,9 +81,9 @@ void StateEstimator::getCSVString(String * csvStr_p)
   *csvStr_p += ","; *csvStr_p += String(state.w);
 }
 
-void StateEstimator::latlonToXY(long lat, long lon, float* x, float* y)
+void StateEstimator::latlonToXY(float lat, float lon, float* x, float* y)
 {
-  *x = (lon-orig_lon)*1.0/100000*M_PI/180.0*RADIUS_OF_EARTH_M*cosOrigLat;
-  *y = (lat-orig_lat)*1.0/100000*M_PI/180.0*RADIUS_OF_EARTH_M;
+  *x = (lon-orig_lon)*M_PI/180.0*RADIUS_OF_EARTH_M*cosOrigLat;
+  *y = (lat-orig_lat)*M_PI/180.0*RADIUS_OF_EARTH_M;
 }
 
