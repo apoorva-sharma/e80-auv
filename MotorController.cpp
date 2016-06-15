@@ -14,6 +14,8 @@
  	int sum = (int) LIN_VEL_CONST*desiredVelocity_p->v;
  	int diff = (int) ROT_VEL_CONST*desiredVelocity_p->w;
 
- 	driver_p->right = (sum+diff)>>1; // sum/2 + diff/2
- 	driver_p->left = (sum-diff)>>1; // sum/2 - diff/2
+ 	int rval = (sum+diff)>>1; // sum/2 + diff/2
+ 	int lval = (sum-diff)>>1; // sum/2 - diff/2
+ 	driver_p->right = (rval > 127) ? 127 : ( (rval < -127) ? -127 : rval ); 
+ 	driver_p->left = (lval > 127) ? 127 : ( (lval < -127) ? -127 : lval ); 
  }

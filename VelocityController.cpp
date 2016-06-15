@@ -35,6 +35,7 @@ void VelocityController::control(StateEstimator * stateEstimator_p, waypoint_t *
   } else {
     // backward
     alpha = -stateEstimator_p->state.heading + atan2(-dy, -dx);
+    beta = -stateEstimator_p->state.heading - alpha + desiredPosition_p->heading;
     desiredVelocity_p->v = -k_r*rho;
     desiredVelocity_p->w = k_a*alpha + k_b*beta;
   }
