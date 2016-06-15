@@ -47,6 +47,11 @@ void StateEstimator::incorporateGPS(gps_state_t * gps_state_p)
   state.y = y;
 }
 
+inline float modfloat(float x, float m) {
+  float r = fmod(x,m);
+  return (r<0) ? r + m : r;
+}
+
 void StateEstimator::incorporateControl(MotorDriver* motorDriver_p)
 {
   float sum = (float) motorDriver_p->right + motorDriver_p->left;
@@ -62,14 +67,16 @@ void StateEstimator::incorporateControl(MotorDriver* motorDriver_p)
   state.x += vx*loop_period;
   state.y += vy*loop_period;
   state.heading += state.w;
-  state.heading = fmod(state.heading + M_PI, 2*M_PI) - M_PI;
+  state.heading = modfloat(state.heading + M_PI, 2*M_PI) - M_PI;
 }
 
 void StateEstimator::printState(void)
 {
   Serial.print("x:"); Serial.print(state.x);
   Serial.print(" y:"); Serial.print(state.y);
-  Serial.print(" h:"); Serial.println(state.heading);
+  Serial.print(" h:"); Serial.print(state.heading);
+  Serial.print(" v:"); Serial.print(state.v);
+  Serial.print(" w:"); Serial.println(state.w);
 }
 
 void StateEstimator::getCSVString(String * csvStr_p)

@@ -43,15 +43,15 @@ unsigned long last_log = 0;
 
 // Sensors
 // IMU
-Adafruit_9DOF                 dof   = Adafruit_9DOF();
-Adafruit_LSM303_Accel_Unified accel = Adafruit_LSM303_Accel_Unified(30301);
-Adafruit_LSM303_Mag_Unified   mag   = Adafruit_LSM303_Mag_Unified(30302);
-Adafruit_L3GD20_Unified       gyro  = Adafruit_L3GD20_Unified();
-SensorIMU imu(&dof, &accel, &mag, &gyro);
+// Adafruit_9DOF                 dof   = Adafruit_9DOF();
+// Adafruit_LSM303_Accel_Unified accel = Adafruit_LSM303_Accel_Unified(30301);
+// Adafruit_LSM303_Mag_Unified   mag   = Adafruit_LSM303_Mag_Unified(30302);
+// Adafruit_L3GD20_Unified       gyro  = Adafruit_L3GD20_Unified();
+// SensorIMU imu(&dof, &accel, &mag, &gyro);
 
 //GPS
-HardwareSerial Uart = HardwareSerial(); // pin 1 = rx (from gps tx), pin 2 = tx (from gps rx)
-SensorGPS gps(&Uart);
+// HardwareSerial Uart = HardwareSerial(); // pin 1 = rx (from gps tx), pin 2 = tx (from gps rx)
+// SensorGPS gps(&Uart);
 
 // Logger
 Logger logger;
@@ -62,7 +62,7 @@ StateEstimator stateEstimator;
 // Trajectory following controllers
 PathController pathController;
 VelocityController velocityController;
-MotorDriver motorDriver(1,2,3,4); //TODO replace with real pins
+MotorDriver motorDriver(3,4,22,21); 
 MotorController motorController;
 
 waypoint_t desiredPosition;
@@ -76,15 +76,15 @@ void setup() {
   delay(2000); // Wait to ensure computer monitor is ready
   Serial.println(F("Serial connection started")); Serial.println("");
 
-  Serial.print("\nLogger: Initializing SD card...");
+  // Serial.print("\nLogger: Initializing SD card...");
 
-  // see if the card is present and can be initialized:
-  if (!SD.begin(SD_CHIP_SELECT)) {
-    Serial.println("Card failed, or not present");
-    // don't do anything more:
-    return;
-  }
-  Serial.println("Card initialized.");
+  // // see if the card is present and can be initialized:
+  // if (!SD.begin(SD_CHIP_SELECT)) {
+  //   Serial.println("Card failed, or not present");
+  //   // don't do anything more:
+  //   return;
+  // }
+  // Serial.println("Card initialized.");
 
   // Determine GPS origin
   // 34.103835, -117.708172 is the center of the circle in scripps pool
@@ -95,18 +95,26 @@ void setup() {
   stateEstimator.init(0.1,lat,lon);
 
   /* init the pathController */
-  pathController.init("traj.txt", &stateEstimator, &desiredPosition);
+  //pathController.init("traj.txt", &stateEstimator, &desiredPosition);
+  desiredPosition.x = -10.0;
+  desiredPosition.y = 10.0;
+  desiredPosition.heading = 3.14;
 
   /* Initialize the Logger */
-  logger.include(&gps);
-  logger.include(&imu);
-  logger.include(&stateEstimator);
-  logger.init();
+  // logger.include(&gps);
+  // logger.include(&imu);
+  // logger.include(&stateEstimator);
+  // logger.init();
   
   /* Initialise the sensors */
-  gps.init();
-  imu.init();
-}
+  // gps.init();
+  // imu.init();
+
+  /* Initialize the motor pins */
+  pinMode(3,OUTPUT);
+  pinMode(4,OUTPUT);
+  pinMode(22,OUTPUT);
+  pinMode(21,OUTPUT);}
 
 /**************************************************************************/
 void loop() {
@@ -139,26 +147,26 @@ void loop() {
     }
 
     // Print current state estimate
-    //stateEstimator.printState();
+    stateEstimator.printState();
 
     // Controllers
-    pathController.control(&stateEstimator, &desiredPosition);
+    //pathController.control(&stateEstimator, &desiredPosition);
     velocityController.control(&stateEstimator, &desiredPosition, &desiredVelocities);
     motorController.control(&stateEstimator, &desiredVelocities, &motorDriver);
 
-    //motorDriver.apply();
+    motorDriver.apply();
     stateEstimator.incorporateControl(&motorDriver);
     
     // Log at every LOG_INTERVAL
-    if (current_time - last_log >= LOG_INTERVAL*1000) {
-      last_log = current_time;
+    // if (current_time - last_log >= LOG_INTERVAL*1000) {
+    //   last_log = current_time;
   
-      unsigned long time_before_log = millis();
-      logger.log(current_time); // this a blocking sequence of comamnds sent over SPI
-      unsigned long time_after_log = millis();
-      Serial.print("Time taken to log row: "); 
-      Serial.println(time_after_log - time_before_log);
-    }
+    //   unsigned long time_before_log = millis();
+    //   logger.log(current_time); // this a blocking sequence of comamnds sent over SPI
+    //   unsigned long time_after_log = millis();
+    //   Serial.print("Time taken to log row: "); 
+    //   Serial.println(time_after_log - time_before_log);
+    // }
     
     Serial.println(micros()-current_time);
     Serial.println("\\----");

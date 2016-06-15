@@ -10,6 +10,11 @@
 #include <math.h>
 #include <Params.h>
 
+inline float modfloat(float x, float m) {
+  float r = fmod(x,m);
+  return (r<0) ? r + m : r;
+}
+
 void VelocityController::control(StateEstimator * stateEstimator_p, waypoint_t * desiredPosition_p, velocity_setpoint_t * desiredVelocity_p)
 {
   // compute rho, alpha, beta:
@@ -19,8 +24,8 @@ void VelocityController::control(StateEstimator * stateEstimator_p, waypoint_t *
 
   float alpha = -stateEstimator_p->state.heading + atan2(dy, dx);
   float beta = -stateEstimator_p->state.heading - alpha + desiredPosition_p->heading;
-  alpha = fmod(alpha + M_PI, 2*M_PI) - M_PI;
-  beta = fmod(beta + M_PI, 2*M_PI) - M_PI;
+  alpha = modfloat(alpha + M_PI, 2*M_PI) - M_PI;
+  beta = modfloat(beta + M_PI, 2*M_PI) - M_PI;
 
   // determine if we should use forward or backward control
   if (alpha < M_PI_2 && alpha > -M_PI_2) {
