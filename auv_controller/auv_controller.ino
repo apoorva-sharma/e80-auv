@@ -29,9 +29,7 @@
 #include <SPI.h>
 #include <Logger.h>
 
-
 #include <Params.h>
-
 
 
 /* Global Variables */
@@ -62,7 +60,7 @@ StateEstimator stateEstimator;
 // Trajectory following controllers
 PathController pathController;
 VelocityController velocityController;
-MotorDriver motorDriver(3,4,22,21); 
+MotorDriver motorDriver(MOTOR_L_FORWARD,MOTOR_L_REVERSE,MOTOR_R_FORWARD,MOTOR_L_REVERSE); 
 MotorController motorController;
 
 waypoint_t desiredPosition;
@@ -111,10 +109,10 @@ void setup() {
   // imu.init();
 
   /* Initialize the motor pins */
-  pinMode(3,OUTPUT);
-  pinMode(4,OUTPUT);
-  pinMode(22,OUTPUT);
-  pinMode(21,OUTPUT);}
+  pinMode(MOTOR_L_FORWARD,OUTPUT);
+  pinMode(MOTOR_L_REVERSE,OUTPUT);
+  pinMode(MOTOR_R_FORWARD,OUTPUT);
+  pinMode(MOTOR_R_REVERSE,OUTPUT);}
 
 /**************************************************************************/
 void loop() {

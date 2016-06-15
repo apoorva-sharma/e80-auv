@@ -31,4 +31,9 @@
 /* PINS */
 #define SD_CHIP_SELECT 10
 
+#define MOTOR_L_FORWARD 3
+#define MOTOR_L_REVERSE 4
+#define MOTOR_R_FORWARD 22
+#define MOTOR_R_REVERSE 21
+
 #endif
