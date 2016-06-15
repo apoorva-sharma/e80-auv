@@ -96,7 +96,7 @@ void setup() {
   //pathController.init("traj.txt", &stateEstimator, &desiredPosition);
   desiredPosition.x = -10.0;
   desiredPosition.y = 10.0;
-  desiredPosition.heading = 3.14;
+  desiredPosition.heading = 0.0;
 
   /* Initialize the Logger */
   // logger.include(&gps);
@@ -121,8 +121,8 @@ void loop() {
   if (current_time - last_loop >= LOOP_INTERVAL*1000) {
     last_loop = current_time;
     
-    Serial.print("/----");
-    Serial.println(current_time);  
+    //Serial.print("/----");
+    //Serial.println(current_time);  
   
     bool newGPSData;
     bool newIMUData;
@@ -145,14 +145,17 @@ void loop() {
     }
 
     // Print current state estimate
-    stateEstimator.printState();
+    String csvString;
+    stateEstimator.getCSVString(&csvString);
+    Serial.println(csvString);
+    //stateEstimator.printState();
 
     // Controllers
     //pathController.control(&stateEstimator, &desiredPosition);
     velocityController.control(&stateEstimator, &desiredPosition, &desiredVelocities);
     motorController.control(&stateEstimator, &desiredVelocities, &motorDriver);
 
-    motorDriver.apply();
+    //motorDriver.apply();
     stateEstimator.incorporateControl(&motorDriver);
     
     // Log at every LOG_INTERVAL
@@ -166,7 +169,7 @@ void loop() {
     //   Serial.println(time_after_log - time_before_log);
     // }
     
-    Serial.println(micros()-current_time);
-    Serial.println("\\----");
+    //Serial.println(micros()-current_time);
+    //Serial.println("\\----");
   }
 }
