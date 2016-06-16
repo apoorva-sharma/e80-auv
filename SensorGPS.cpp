@@ -10,7 +10,7 @@
 #include "Params.h"
 
 SensorGPS::SensorGPS(HardwareSerial * Uart_p_)
-  : DataSource("lat,lon,hdop,nsats","f,f,f,i"), Uart_p(Uart_p_)
+  : DataSource("lat,lon,hdop,nsats","float,float,float,int"), Uart_p(Uart_p_)
 {  
 }
 

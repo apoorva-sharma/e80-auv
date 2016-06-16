@@ -11,7 +11,7 @@
 
 SensorIMU::SensorIMU(Adafruit_9DOF * dof_p_, Adafruit_LSM303_Accel_Unified * accel_p_, 
     Adafruit_LSM303_Mag_Unified * mag_p_, Adafruit_L3GD20_Unified * gyro_p_)
-  : DataSource("axIMU,ayIMU,azIMU,wxIMU,wyIMU,wzIMU,rollIMU,pitchIMU,headingIMU","f,f,f,f,f,f,f,f,f"), 
+  : DataSource("axIMU,ayIMU,azIMU,wxIMU,wyIMU,wzIMU,rollIMU,pitchIMU,headingIMU","float,float,float,float,float,float,float,float,float"), 
     dof_p(dof_p_), accel_p(accel_p_), mag_p(mag_p_), gyro_p(gyro_p_)
 {  
 }

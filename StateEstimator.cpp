@@ -13,7 +13,7 @@
 #define RADIUS_OF_EARTH_M 6371000
 
 StateEstimator::StateEstimator(void) 
-  : DataSource(String("x,y,heading,v,w"),String("f,f,f,f,f")) // from DataSource
+  : DataSource(String("x,y,heading,v,w"),String("float,float,float,float,float")) // from DataSource
 {}
 
 void StateEstimator::init(double period, float lat, float lon)

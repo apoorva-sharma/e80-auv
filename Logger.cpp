@@ -57,7 +57,7 @@ void Logger::init(void)
 
   // Write column headings and datatypes to file
   String headingStr = "time";
-  String dataTypeStr = "ul";
+  String dataTypeStr = "ulong";
   for (size_t i = 0; i < num_datasources; ++i) {
     headingStr += ",";
     headingStr += sources[i]->csvVarNames;
