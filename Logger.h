@@ -11,9 +11,13 @@
 
 #define MAX_NUM_DATASOURCES 20
 #define LOG_FILENAME_BASE "log"
+#define HEADINGS_FILENAME_BASE "inf"
 #define LOG_FILENAME_BUFFERLEN 20
 
+#define MAX_BYTES_PER_ROW 500
+
 #include <Arduino.h>
+#include <SD.h>
 #include "DataSource.h"
 
 class Logger {
@@ -33,6 +37,11 @@ private:
   DataSource* sources[MAX_NUM_DATASOURCES];
   unsigned int num_datasources;
   char logfilename[LOG_FILENAME_BUFFERLEN];
+  char headingfilename[LOG_FILENAME_BUFFERLEN];
+
+  File dataFile;
+
+  unsigned char rowbuffer[MAX_BYTES_PER_ROW];
 
   void padding(int number, byte width, String & str);
 };

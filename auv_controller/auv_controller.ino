@@ -74,15 +74,15 @@ void setup() {
   delay(2000); // Wait to ensure computer monitor is ready
   Serial.println(F("Serial connection started")); Serial.println("");
 
-  // Serial.print("\nLogger: Initializing SD card...");
+  Serial.print("\nLogger: Initializing SD card...");
 
-  // // see if the card is present and can be initialized:
-  // if (!SD.begin(SD_CHIP_SELECT)) {
-  //   Serial.println("Card failed, or not present");
-  //   // don't do anything more:
-  //   return;
-  // }
-  // Serial.println("Card initialized.");
+  // see if the card is present and can be initialized:
+  if (!SD.begin(SD_CHIP_SELECT)) {
+    Serial.println("Card failed, or not present");
+    // don't do anything more:
+    return;
+  }
+  Serial.println("Card initialized.");
 
   // Determine GPS origin
   // 34.103835, -117.708172 is the center of the circle in scripps pool
@@ -93,16 +93,16 @@ void setup() {
   stateEstimator.init(0.1,lat,lon);
 
   /* init the pathController */
-  //pathController.init("traj.txt", &stateEstimator, &desiredPosition);
-  desiredPosition.x = -10.0;
-  desiredPosition.y = 10.0;
-  desiredPosition.heading = 0.0;
+  pathController.init("traj.txt", &stateEstimator, &desiredPosition);
+  // desiredPosition.x = -10.0;
+  // desiredPosition.y = 10.0;
+  // desiredPosition.heading = 0.0;
 
   /* Initialize the Logger */
   // logger.include(&gps);
   // logger.include(&imu);
-  // logger.include(&stateEstimator);
-  // logger.init();
+  logger.include(&stateEstimator);
+  logger.init();
   
   /* Initialise the sensors */
   // gps.init();
@@ -112,7 +112,8 @@ void setup() {
   pinMode(MOTOR_L_FORWARD,OUTPUT);
   pinMode(MOTOR_L_REVERSE,OUTPUT);
   pinMode(MOTOR_R_FORWARD,OUTPUT);
-  pinMode(MOTOR_R_REVERSE,OUTPUT);}
+  pinMode(MOTOR_R_REVERSE,OUTPUT);
+}
 
 /**************************************************************************/
 void loop() {
@@ -145,13 +146,10 @@ void loop() {
     }
 
     // Print current state estimate
-    String csvString;
-    stateEstimator.getCSVString(&csvString);
-    Serial.println(csvString);
-    //stateEstimator.printState();
+    stateEstimator.printState();
 
     // Controllers
-    //pathController.control(&stateEstimator, &desiredPosition);
+    pathController.control(&stateEstimator, &desiredPosition);
     velocityController.control(&stateEstimator, &desiredPosition, &desiredVelocities);
     motorController.control(&stateEstimator, &desiredVelocities, &motorDriver);
 
@@ -159,15 +157,15 @@ void loop() {
     stateEstimator.incorporateControl(&motorDriver);
     
     // Log at every LOG_INTERVAL
-    // if (current_time - last_log >= LOG_INTERVAL*1000) {
-    //   last_log = current_time;
+    if (current_time - last_log >= LOG_INTERVAL*1000) {
+      last_log = current_time;
   
-    //   unsigned long time_before_log = millis();
-    //   logger.log(current_time); // this a blocking sequence of comamnds sent over SPI
-    //   unsigned long time_after_log = millis();
-    //   Serial.print("Time taken to log row: "); 
-    //   Serial.println(time_after_log - time_before_log);
-    // }
+      unsigned long time_before_log = millis();
+      logger.log(current_time); // this a blocking sequence of comamnds sent over SPI
+      unsigned long time_after_log = millis();
+      Serial.print("Time taken to log row: "); 
+      Serial.println(time_after_log - time_before_log);
+    }
     
     //Serial.println(micros()-current_time);
     //Serial.println("\\----");

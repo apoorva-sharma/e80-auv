@@ -13,7 +13,7 @@
 #define RADIUS_OF_EARTH_M 6371000
 
 StateEstimator::StateEstimator(void) 
-  : DataSource(String("x,y,heading,v,w")) // from DataSource
+  : DataSource(String("x,y,heading,v,w"),String("f,f,f,f,f")) // from DataSource
 {}
 
 void StateEstimator::init(double period, float lat, float lon)
@@ -86,6 +86,17 @@ void StateEstimator::getCSVString(String * csvStr_p)
   *csvStr_p += ","; *csvStr_p += String(state.heading);
   *csvStr_p += ","; *csvStr_p += String(state.v);
   *csvStr_p += ","; *csvStr_p += String(state.w);
+}
+
+size_t StateEstimator::writeDataBytes(unsigned char * buffer, size_t idx)
+{
+  float * data_slot = (float *) (buffer + idx);
+  data_slot[0] = state.x;
+  data_slot[1] = state.y;
+  data_slot[2] = state.heading;
+  data_slot[3] = state.v;
+  data_slot[4] = state.w;
+  return idx + 5*sizeof(float);
 }
 
 void StateEstimator::latlonToXY(float lat, float lon, float* x, float* y)

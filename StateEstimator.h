@@ -50,7 +50,8 @@ public:
   void latlonToXY(float lat, float lon, float* x_p, float* y_p);
 
   // from DataSource
-  void getCSVString(String * csvStr_p); // implement DataSource's virtual func
+  void getCSVString(String * csvStr_p);
+  size_t writeDataBytes(unsigned char * buffer, size_t idx);
 
 private:
   double loop_period;

@@ -11,7 +11,7 @@
 
 SensorIMU::SensorIMU(Adafruit_9DOF * dof_p_, Adafruit_LSM303_Accel_Unified * accel_p_, 
     Adafruit_LSM303_Mag_Unified * mag_p_, Adafruit_L3GD20_Unified * gyro_p_)
-  : DataSource("axIMU,ayIMU,azIMU,wxIMU,wyIMU,wzIMU,rollIMU,pitchIMU,headingIMU"), 
+  : DataSource("axIMU,ayIMU,azIMU,wxIMU,wyIMU,wzIMU,rollIMU,pitchIMU,headingIMU","f,f,f,f,f,f,f,f,f"), 
     dof_p(dof_p_), accel_p(accel_p_), mag_p(mag_p_), gyro_p(gyro_p_)
 {  
 }
@@ -65,4 +65,19 @@ void SensorIMU::getCSVString(String * csvStr_p)
   *csvStr_p += String(state.orientation.roll); *csvStr_p += ",";
   *csvStr_p += String(state.orientation.pitch); *csvStr_p += ",";
   *csvStr_p += String(state.orientation.heading);
+}
+
+size_t SensorIMU::writeDataBytes(unsigned char * buffer, size_t idx)
+{
+  float * data_slot = (float *) (buffer + idx);
+  data_slot[0] = state.acceleration.x;
+  data_slot[1] = state.acceleration.y;
+  data_slot[2] = state.acceleration.z;
+  data_slot[3] = state.omega.x;
+  data_slot[4] = state.omega.y;
+  data_slot[5] = state.omega.z;
+  data_slot[6] = state.orientation.roll;
+  data_slot[7] = state.orientation.pitch;
+  data_slot[8] = state.orientation.heading;
+  return idx + 9*sizeof(float);
 }

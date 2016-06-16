@@ -41,6 +41,7 @@ public:
 
   // from DataSource
   void getCSVString(String * csvStr_p);
+  size_t writeDataBytes(unsigned char * buffer, size_t idx);
 
 private:
   Adafruit_9DOF * dof_p;

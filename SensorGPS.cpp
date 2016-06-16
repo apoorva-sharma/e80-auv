@@ -10,7 +10,7 @@
 #include "Params.h"
 
 SensorGPS::SensorGPS(HardwareSerial * Uart_p_)
-  : DataSource("lat,lon,hdop,nsats"), Uart_p(Uart_p_)
+  : DataSource("lat,lon,hdop,nsats","f,f,f,i"), Uart_p(Uart_p_)
 {  
 }
 
@@ -50,6 +50,18 @@ void SensorGPS::getCSVString(String * csvStr_p)
   *csvStr_p += String(state.lon); *csvStr_p += ",";
   *csvStr_p += String(state.hdop); *csvStr_p += ",";
   *csvStr_p += String(state.num_sat);
+}
+
+size_t SensorGPS::writeDataBytes(unsigned char * buffer, size_t idx)
+{
+  float * data_slot = (float *) (buffer + idx);
+  data_slot[0] = state.lat;
+  data_slot[1] = state.lon;
+  data_slot[2] = state.hdop;
+  idx += 3*sizeof(float);
+  int * int_slot = (int *) (buffer + idx);
+  int_slot[0] = state.num_sat;
+  return idx + sizeof(int);
 }
 
 void SensorGPS::updateState(void)
