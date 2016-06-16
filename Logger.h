@@ -17,12 +17,12 @@
 #define MAX_BYTES_PER_ROW 500
 
 #include <Arduino.h>
-#include <SD.h>
+#include <SdFat.h>
 #include "DataSource.h"
 
 class Logger {
 public:
-  Logger(void);
+  Logger(SdFat & sd_, SdFile & file_);
 
   // include all dataSources before running init
   void include(DataSource * source_p);
@@ -39,7 +39,8 @@ private:
   char logfilename[LOG_FILENAME_BUFFERLEN];
   char headingfilename[LOG_FILENAME_BUFFERLEN];
 
-  File dataFile;
+  SdFat & sd;
+  SdFile & file;
 
   unsigned char rowbuffer[MAX_BYTES_PER_ROW];
 

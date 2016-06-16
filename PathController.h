@@ -13,7 +13,7 @@
 
 #include "StateEstimator.h"
 #include "Params.h"
-#include <SD.h>
+#include <SdFat.h>
 
 typedef struct Waypoint {
   Waypoint(void)
@@ -35,6 +35,8 @@ typedef struct Waypoint {
 class PathController
 {
 public:
+  PathController(SdFile & file_);
+
   void init(char* trajFileName, StateEstimator * stateEstimator_p, waypoint_t * desiredPosition_p);
 
   void control(StateEstimator * stateEstimator_p, waypoint_t * desiredPosition_p);
@@ -43,6 +45,8 @@ private:
   byte current_waypoint_idx;
   byte num_waypoints;
   waypoint_t trajectory[MAX_NUM_WAYPOINTS];
+
+  SdFile & file;
 };
 
 #endif

@@ -8,19 +8,23 @@
 
 #include "PathController.h"
 
+PathController::PathController(SdFile & file_)
+  : file(file_)
+{
+}
+
 void PathController::init(char* trajFileName, StateEstimator* stateEstimator_p, waypoint_t * desiredPosition_p)
 {
   current_waypoint_idx = 0;
-  File dataFile = SD.open(trajFileName);
-  if (dataFile) {
+  if (file.open(trajFileName)) {
     // read lat lon points from file
     String numstr = "";
     int i = 0;
     char c;
     byte itemnum = 0;
 
-    while (dataFile.available() && i < 2*MAX_NUM_WAYPOINTS) {
-      c = dataFile.read(); 
+    while (file.available() && i < 2*MAX_NUM_WAYPOINTS) {
+      c = file.read(); 
       if (c == ',' || c == '\n') {
         // we have reached the end of a number, so
         // determine if this was an x or y coordinate
@@ -41,6 +45,8 @@ void PathController::init(char* trajFileName, StateEstimator* stateEstimator_p, 
         numstr += c;
       }
     }
+
+    file.close();
 
     if (i % 3 != 0) {
       Serial.println("Invalid trajectory file!");

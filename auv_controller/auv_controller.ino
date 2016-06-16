@@ -25,7 +25,7 @@
 #include <MotorController.h>
 
 // Logging
-#include <SD.h>
+#include <SdFat.h>
 #include <SPI.h>
 #include <Logger.h>
 
@@ -52,13 +52,15 @@ unsigned long last_log = 0;
 // SensorGPS gps(&Uart);
 
 // Logger
-Logger logger;
+SdFat sd;
+SdFile file;
+Logger logger(sd,file);
 
 // State Estimation
 StateEstimator stateEstimator;
 
 // Trajectory following controllers
-PathController pathController;
+PathController pathController(file);
 VelocityController velocityController;
 MotorDriver motorDriver(MOTOR_L_FORWARD,MOTOR_L_REVERSE,MOTOR_R_FORWARD,MOTOR_L_REVERSE); 
 MotorController motorController;
@@ -77,7 +79,7 @@ void setup() {
   Serial.print("\nLogger: Initializing SD card...");
 
   // see if the card is present and can be initialized:
-  if (!SD.begin(SD_CHIP_SELECT)) {
+  if (!sd.begin(SD_CHIP_SELECT, SPI_FULL_SPEED)) {
     Serial.println("Card failed, or not present");
     // don't do anything more:
     return;

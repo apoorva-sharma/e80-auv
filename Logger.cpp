@@ -9,8 +9,8 @@
 #include "Params.h"
 #include "Logger.h"
 
-Logger::Logger()
-  : num_datasources(0)
+Logger::Logger(SdFat & sd_, SdFile & file_)
+  : num_datasources(0), sd(sd_), file(file_)
 {
 }
 
@@ -41,7 +41,7 @@ void Logger::init(void)
   String finalname = LOG_FILENAME_BASE + numstr + ".bin";
   finalname.toCharArray(logfilename, LOG_FILENAME_BUFFERLEN);
 
-  while(SD.exists(logfilename)) {
+  while(sd.exists(logfilename)) {
     number++;
     numstr = "";
     padding(number, 3, numstr);
@@ -67,18 +67,16 @@ void Logger::init(void)
   headingStr += "\n";
   headingStr += dataTypeStr;
 
-  dataFile = SD.open(headingfilename, O_WRITE | O_CREAT | O_APPEND);
-  if (dataFile) {
-    dataFile.println(headingStr);
-    dataFile.close();
+  if (file.open(headingfilename, O_WRITE | O_CREAT | O_APPEND)) {
+    file.println(headingStr);
+    file.close();
   } else {
     Serial.print("Logger: Error opening "); Serial.println(headingfilename);
     while (1) {}; // stop the show
   }
 
   // open the log file to be ready to write
-  dataFile = SD.open(logfilename, O_WRITE | O_CREAT | O_APPEND);
-  if (!dataFile) {
+  if (!file.open(logfilename, O_WRITE | O_CREAT | O_APPEND)) {
     Serial.print("Logger: Error opening "); Serial.println(logfilename);
     while (1) {}; // stop the show
   }
@@ -97,8 +95,8 @@ void Logger::log(unsigned long time_val)
     idx = sources[i]->writeDataBytes(rowbuffer, idx);
   }
   unsigned long t2 = micros();
-  dataFile.write(rowbuffer, idx);
-  dataFile.flush();
+  file.write(rowbuffer, idx);
+  file.sync();
   unsigned long t3 = micros();
   Serial.print("generating buffer took (us): "); Serial.println(t2-t1);
   Serial.print("writing buffer to card took (us): "); Serial.println(t3-t2);
