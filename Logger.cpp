@@ -96,8 +96,9 @@ void Logger::log(unsigned long time_val)
   }
   unsigned long t2 = micros();
   file.write(rowbuffer, idx);
-  file.sync();
+  //file.sync();
   unsigned long t3 = micros();
+  Serial.print("Time "); Serial.println(time_val);
   Serial.print("generating buffer took (us): "); Serial.println(t2-t1);
   Serial.print("writing buffer to card took (us): "); Serial.println(t3-t2);
 }
