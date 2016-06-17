@@ -62,7 +62,7 @@ StateEstimator stateEstimator;
 // Trajectory following controllers
 PathController pathController(file);
 VelocityController velocityController;
-MotorDriver motorDriver(MOTOR_L_FORWARD,MOTOR_L_REVERSE,MOTOR_R_FORWARD,MOTOR_L_REVERSE); 
+MotorDriver motorDriver(MOTOR_L_FORWARD,MOTOR_L_REVERSE,MOTOR_R_FORWARD,MOTOR_R_REVERSE); 
 MotorController motorController;
 
 waypoint_t desiredPosition;
