@@ -155,7 +155,7 @@ void loop() {
     velocityController.control(&stateEstimator, &desiredPosition, &desiredVelocities);
     motorController.control(&stateEstimator, &desiredVelocities, &motorDriver);
 
-    //motorDriver.apply();
+    motorDriver.apply();
     stateEstimator.incorporateControl(&motorDriver);
     
     // Log at every LOG_INTERVAL
