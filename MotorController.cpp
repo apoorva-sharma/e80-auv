@@ -16,6 +16,8 @@
 
  	int rval = (sum+diff)>>1; // sum/2 + diff/2
  	int lval = (sum-diff)>>1; // sum/2 - diff/2
+
+ 	// bounds checking
  	driver_p->right = (rval > 127) ? 127 : ( (rval < -127) ? -127 : rval ); 
  	driver_p->left = (lval > 127) ? 127 : ( (lval < -127) ? -127 : lval ); 
  }
