@@ -39,7 +39,7 @@ public:
 
 private:
   const double k_r = 0.1;
-  const double k_a = 0.11;
+  const double k_a = 0.15;
   const double k_b = -0.1;
 };
 

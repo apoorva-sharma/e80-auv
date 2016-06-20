@@ -28,7 +28,7 @@ void VelocityController::control(StateEstimator * stateEstimator_p, waypoint_t *
   beta = modfloat(beta + M_PI, 2*M_PI) - M_PI;
 
   // determine if we should use forward or backward control
-  if (alpha < M_PI_2 && alpha > -M_PI_2) {
+  if (alpha < M_PI_2 && alpha >= -M_PI_2) {
     // forward
     desiredVelocity_p->v = k_r*rho;
     desiredVelocity_p->w = k_a*alpha + k_b*beta;
