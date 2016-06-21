@@ -39,7 +39,7 @@
 
 /* MOTOR DYNAMICS */
 // the minimum PWM amount that causes the motors to actually spin
-#define MOTOR_L_DEADZONE 35
-#define MOTOR_R_DEADZONE 35 
+#define MOTOR_L_DEADZONE 32
+#define MOTOR_R_DEADZONE 32 
 
 #endif

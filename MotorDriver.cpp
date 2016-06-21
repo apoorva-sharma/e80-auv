@@ -10,7 +10,7 @@
 #include "Params.h"
 
 MotorDriver::MotorDriver(int left1, int left2, int right1, int right2)
-  : right(0), left(0), left1(left1), left2(left2), right1(right1), right2(right2)
+  : DataSource("left,right","int,int"), right(0), left(0), left1(left1), left2(left2), right1(right1), right2(right2)
 {
 
 }
@@ -37,4 +37,18 @@ void MotorDriver::apply(void)
 
   Serial.print("L: "); Serial.print(l_dir*l_abs); Serial.print(" "); Serial.println((!l_dir)*l_abs);
   Serial.print("R: "); Serial.print(r_dir*r_abs); Serial.print(" "); Serial.println((!r_dir)*r_abs);
+}
+
+void MotorDriver::getCSVString(String * csvStr_p)
+{
+	*csvStr_p += String(left); *csvStr_p += ",";
+	*csvStr_p += String(right);
+}
+
+size_t MotorDriver::writeDataBytes(unsigned char * buffer, size_t idx)
+{
+	int * data_slot = (int *) (buffer + idx);
+	data_slot[0] = left;
+	data_slot[1] = right;
+	return idx + 2*sizeof(int);
 }
