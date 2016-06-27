@@ -57,8 +57,10 @@ MotorDriver motorDriver(MOTOR_L_FORWARD,MOTOR_L_REVERSE,MOTOR_R_FORWARD,MOTOR_R_
 #define SEQ_LEN 11
 size_t curridx = 0;
 int seq_l[SEQ_LEN] = {0,25,0,50,0,75,0,100,0,125,0}; 
+// int seq_l[SEQ_LEN] = {29,30,31,32,33,34,35,36,37,38,0}; 
 int seq_r[SEQ_LEN] = {0,25,0,50,0,75,0,100,0,125,0};
-int seq_t[SEQ_LEN] = {1,3,1,3,1,3,1,3,1,3,1};
+int seq_t[SEQ_LEN] = {60,5,20,5,20,5,20,5,20,5,20};
+// int seq_t[SEQ_LEN] = {2,2,2,2,2,2,2,2,2,2,2};
 unsigned long last_trans = 0;
 
 /**************************************************************************/
@@ -95,13 +97,13 @@ void setup() {
 
 /**************************************************************************/
 void loop() {
-  unsigned long current_time = micros();
+  unsigned long current_time = millis();
   
-  if (current_time - last_loop >= LOOP_INTERVAL*1000) {
+  if (current_time - last_loop >= LOOP_INTERVAL) {
     last_loop = current_time;
     
     // handle state transitions
-    if (current_time - last_trans >= seq_t[curridx]*1000*1000) {
+    if (current_time - last_trans >= seq_t[curridx]*1000) {
       Serial.print("switching to state "); Serial.println(curridx);
       if (curridx < SEQ_LEN - 1) {
         curridx++;
@@ -117,7 +119,7 @@ void loop() {
     motorDriver.apply();
     
     // Log at every LOG_INTERVAL
-    if (current_time - last_log >= LOG_INTERVAL*1000) {
+    if (current_time - last_log >= LOG_INTERVAL) {
       last_log = current_time;
   
       unsigned long time_before_log = millis();

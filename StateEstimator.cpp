@@ -54,11 +54,11 @@ inline float modfloat(float x, float m) {
 
 void StateEstimator::incorporateControl(MotorDriver* motorDriver_p)
 {
-  float sum = (float) motorDriver_p->right + motorDriver_p->left;
-  float diff = (float) motorDriver_p->right - motorDriver_p->left;
+  int r = motorDriver_p->right;
+  int l = motorDriver_p->left;
 
-  state.v = sum / LIN_VEL_CONST;
-  state.w = diff / ROT_VEL_CONST;
+  state.v = FWD_MODEL_A*r + FWD_MODEL_B*l;
+  state.w = FWD_MODEL_C*r + FWD_MODEL_D*l;
 
   // forward euler update
   float vx = state.v*cos(state.heading);
