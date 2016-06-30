@@ -16,6 +16,15 @@
 
 #define MAX_BYTES_PER_ROW 500
 
+// buffered logging
+// number of 512B blocks in the log file
+#define FILE_BLOCK_COUNT 1000
+// number of 512B blocks in the buffer
+#define BUFFER_BLOCK_COUNT 12
+// size of queue, must be a power of two
+#define QUEUE_DIM 16
+
+
 #include <Arduino.h>
 #include <SdFat.h>
 #include "DataSource.h"
@@ -33,6 +42,9 @@ public:
   // records a row of data with time value as given
   void log(unsigned long time_val);
 
+  // writes buffered data to file. should be called as often as possible
+  void write(void);
+
 private:
   DataSource* sources[MAX_NUM_DATASOURCES];
   unsigned int num_datasources;
@@ -45,6 +57,22 @@ private:
   unsigned char rowbuffer[MAX_BYTES_PER_ROW];
 
   void padding(int number, byte width, String & str);
+
+
+  // buffered logging
+  uint8_t* emptyQueue[QUEUE_DIM];
+  uint8_t emptyHead;
+  uint8_t emptyTail;
+
+  uint8_t* fullQueue[QUEUE_DIM];
+  uint8_t fullHead;
+  uint8_t fullTail;
+
+  uint8_t* currentBuffer;
+  uint16_t currentIdx;
+
+  uint32_t bgnBlock, endBlock; // start and end of contiguous data block
+  uint8_t block[512 * BUFFER_BLOCK_COUNT];
 };
 
 #endif
