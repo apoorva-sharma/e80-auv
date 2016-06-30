@@ -12,6 +12,12 @@
 
 #define RADIUS_OF_EARTH_M 6371000
 
+
+inline float modfloat(float x, float m) {
+  float r = fmod(x,m);
+  return (r<0) ? r + m : r;
+}
+
 StateEstimator::StateEstimator(void) 
   : DataSource(String("x,y,heading,v,w"),String("float,float,float,float,float")) // from DataSource
 {}
@@ -33,7 +39,7 @@ void StateEstimator::incorporateIMU(imu_state_t * imu_state_p)
 {
   float heading_rad = M_PI*imu_state_p->orientation.heading/180.0;
   heading_rad = -heading_rad + M_PI_2; // adjust from 0=North, CW=(+) to 0=East, CCW=(+)
-  state.heading = fmod(heading_rad + M_PI, 2*M_PI) - M_PI;
+  state.heading = modfloat(heading_rad + M_PI, 2*M_PI) - M_PI;
 }
 
 void StateEstimator::incorporateGPS(gps_state_t * gps_state_p)
@@ -45,11 +51,6 @@ void StateEstimator::incorporateGPS(gps_state_t * gps_state_p)
 
   state.x = x;
   state.y = y;
-}
-
-inline float modfloat(float x, float m) {
-  float r = fmod(x,m);
-  return (r<0) ? r + m : r;
 }
 
 void StateEstimator::incorporateControl(MotorDriver* motorDriver_p)
@@ -66,7 +67,7 @@ void StateEstimator::incorporateControl(MotorDriver* motorDriver_p)
 
   state.x += vx*loop_period;
   state.y += vy*loop_period;
-  state.heading += state.w;
+  //state.heading += state.w;
   state.heading = modfloat(state.heading + M_PI, 2*M_PI) - M_PI;
 }
 

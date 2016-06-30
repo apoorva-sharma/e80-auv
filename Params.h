@@ -27,8 +27,8 @@
 // // rotational velocity = difference of motor values / ROT_VEL_CONST
 // #define ROT_VEL_CONST 40.4
 
-#define MAX_LIN_VEL 0.5
-#define MAX_ROT_VEL 1.0
+#define MAX_LIN_VEL 0.1
+#define MAX_ROT_VEL 0.2
 
 
 /* PATH CONTROLLER */

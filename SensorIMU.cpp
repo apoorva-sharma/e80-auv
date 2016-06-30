@@ -18,9 +18,12 @@ SensorIMU::SensorIMU(Adafruit_9DOF * dof_p_, Adafruit_LSM303_Accel_Unified * acc
 
 void SensorIMU::init(void)
 {
-  accel_p->begin();
-  mag_p->begin();
-  gyro_p->begin();
+  bool a = true;
+  a = a && accel_p->begin();
+  a = a && mag_p->begin();
+  a = a && gyro_p->begin();
+  if (!a)
+    Serial.println("Could not connect to IMU");
 }
 
 bool SensorIMU::read(void)
@@ -37,7 +40,10 @@ bool SensorIMU::read(void)
   state.acceleration = accel_event.acceleration; // TODO remove gravity from this acceleration
   state.omega = gyro_event.gyro;
 
-  return dof_p->fusionGetOrientation(&accel_event, &mag_event, &state.orientation);
+  dof_p->accelGetOrientation(&accel_event, &state.orientation);
+  return dof_p->magGetOrientation(SENSOR_AXIS_Z, &mag_event, &state.orientation);
+
+  // return dof_p->fusionGetOrientation(&accel_event, &mag_event, &state.orientation);
 }
 
 void SensorIMU::printState(void)

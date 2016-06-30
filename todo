@@ -6,6 +6,8 @@ failsafes (e.g., no sd card, no sensor, etc.)
 
 write and test analog pin reader class SensorPin.h
 
-timing
+write async logger (put control/measurement in interrupt service routine)
 
-logging speed improvements
+test controller in tank
+test controller in pool
+

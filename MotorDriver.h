@@ -24,6 +24,9 @@ public:
   // applies the stored values to the pins
   void apply(void);
 
+  // prints current output to Serial port
+  void printState(void);
+
   // motor values (range from -127 to +127) for full reverse or full forward
   int right;
   int left;
@@ -38,6 +41,14 @@ private:
   int left2;
   int right1;
   int right2;
+
+  // absolute value of pwm outputs
+  unsigned int l_abs;
+  unsigned int r_abs;
+
+  // direction of pwm outputs
+  bool l_dir;
+  bool r_dir;
 };
 
 #endif

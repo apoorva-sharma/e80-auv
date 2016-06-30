@@ -41,15 +41,15 @@ unsigned long last_log = 0;
 
 // Sensors
 // IMU
-// Adafruit_9DOF                 dof   = Adafruit_9DOF();
-// Adafruit_LSM303_Accel_Unified accel = Adafruit_LSM303_Accel_Unified(30301);
-// Adafruit_LSM303_Mag_Unified   mag   = Adafruit_LSM303_Mag_Unified(30302);
-// Adafruit_L3GD20_Unified       gyro  = Adafruit_L3GD20_Unified();
-// SensorIMU imu(&dof, &accel, &mag, &gyro);
+Adafruit_9DOF                 dof   = Adafruit_9DOF();
+Adafruit_LSM303_Accel_Unified accel = Adafruit_LSM303_Accel_Unified(30301);
+Adafruit_LSM303_Mag_Unified   mag   = Adafruit_LSM303_Mag_Unified(30302);
+Adafruit_L3GD20_Unified       gyro  = Adafruit_L3GD20_Unified();
+SensorIMU imu(&dof, &accel, &mag, &gyro);
 
 //GPS
-// HardwareSerial Uart = HardwareSerial(); // pin 1 = rx (from gps tx), pin 2 = tx (from gps rx)
-// SensorGPS gps(&Uart);
+HardwareSerial Uart = HardwareSerial(); // pin 1 = rx (from gps tx), pin 2 = tx (from gps rx)
+SensorGPS gps(&Uart);
 
 // Logger
 SdFat sd;
@@ -101,20 +101,28 @@ void setup() {
   // desiredPosition.heading = 0.0;
 
   /* Initialize the Logger */
-  // logger.include(&gps);
-  // logger.include(&imu);
+  logger.include(&gps);
+  logger.include(&imu);
   logger.include(&stateEstimator);
+  logger.include(&motorDriver);
   logger.init();
   
   /* Initialise the sensors */
-  // gps.init();
-  // imu.init();
+  gps.init();
+  Serial.println("initialized gps");
+  imu.init();
+  Serial.println("initialized imu");
 
   /* Initialize the motor pins */
   pinMode(MOTOR_L_FORWARD,OUTPUT);
   pinMode(MOTOR_L_REVERSE,OUTPUT);
   pinMode(MOTOR_R_FORWARD,OUTPUT);
   pinMode(MOTOR_R_REVERSE,OUTPUT);
+
+  // wait a minute
+  // Serial.println("waiting 1min before starting...");
+  // delay(60*1000);
+  Serial.println("entering control loop");
 }
 
 /**************************************************************************/
@@ -123,53 +131,50 @@ void loop() {
   
   if (current_time - last_loop >= LOOP_INTERVAL*1000) {
     last_loop = current_time;
-    
-    //Serial.print("/----");
-    //Serial.println(current_time);  
   
     bool newGPSData;
     bool newIMUData;
 
     // Gather data from serial sensors
-    //newIMUData = imu.read(); // this is a sequence of blocking I2C read calls
-    //newGPSData = gps.read(); // this is a sequence of UART reads, bounded by a time
+    newIMUData = imu.read(); // this is a sequence of blocking I2C read calls
+    newGPSData = gps.read(); // this is a sequence of UART reads, bounded by a time
   
     // Use Data
     if (newIMUData) {
       //Serial.print(" ");
-      //imu.printState();
-      //stateEstimator.incorporateIMU(&imu.state);
+      imu.printState();
+      stateEstimator.incorporateIMU(&imu.state);
     }
 
     if (newGPSData) {
       //Serial.print(" ");
-      //gps.printState();
-      //stateEstimator.incorporateGPS(&gps.state);
+      gps.printState();
+      stateEstimator.incorporateGPS(&gps.state);
     }
 
     // Print current state estimate
     stateEstimator.printState();
+    Serial.print("desired v:");
+    Serial.print(desiredVelocities.v);
+    Serial.print(" w:");
+    Serial.println(desiredVelocities.w);
 
     // Controllers
     pathController.control(&stateEstimator, &desiredPosition);
-    velocityController.control(&stateEstimator, &desiredPosition, &desiredVelocities);
+    //velocityController.control(&stateEstimator, &desiredPosition, &desiredVelocities);
+    desiredVelocities.v = 0;
+    desiredVelocities.w = MAX_ROT_VEL;
     motorController.control(&stateEstimator, &desiredVelocities, &motorDriver);
-
     motorDriver.apply();
     stateEstimator.incorporateControl(&motorDriver);
     
+    motorDriver.printState();
+
     // Log at every LOG_INTERVAL
     if (current_time - last_log >= LOG_INTERVAL*1000) {
       last_log = current_time;
-  
-      unsigned long time_before_log = millis();
       logger.log(current_time); // this a blocking sequence of comamnds sent over SPI
-      unsigned long time_after_log = millis();
-      Serial.print("Time taken to log row: "); 
-      Serial.println(time_after_log - time_before_log);
     }
     
-    //Serial.println(micros()-current_time);
-    //Serial.println("\\----");
   }
 }
