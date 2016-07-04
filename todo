@@ -6,8 +6,12 @@ failsafes (e.g., no sd card, no sensor, etc.)
 
 write and test analog pin reader class SensorPin.h
 
-write async logger (put control/measurement in interrupt service routine)
-
 test controller in tank
 test controller in pool
 
+switch gps to use ints
+
+get better model of robot dynamics
+
+
+update documentation

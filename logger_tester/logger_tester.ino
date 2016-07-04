@@ -1,9 +1,8 @@
 /************
- *  Motor Controller Tester
+ *  Logger tester
  *  Author: Apoorva Sharma (asharma@hmc.edu)
- *  Created: 27 Jun 2016
- *  Gives a sequence of velocity setpoints, which the motorController
- *  must try and meet.
+ *  Created: 30 Jun 2016
+ *  Doesn't run the motors, but does everything else
  ************/
 
 /* Libraries */
@@ -36,12 +35,9 @@
 
 /* Global Variables */
 // Timing
-unsigned long last_loop = 0;
 unsigned long last_log = 0;
 #define LOOP_INTERVAL 100
-#define LOG_INTERVAL 1000
 IntervalTimer controlTimer;
-
 
 // Sensors
 // IMU
@@ -52,27 +48,26 @@ Adafruit_L3GD20_Unified       gyro  = Adafruit_L3GD20_Unified();
 SensorIMU imu(&dof, &accel, &mag, &gyro);
 
 //GPS
-// HardwareSerial Uart = HardwareSerial(); // pin 1 = rx (from gps tx), pin 2 = tx (from gps rx)
-// SensorGPS gps(&Uart);
+HardwareSerial Uart = HardwareSerial(); // pin 1 = rx (from gps tx), pin 2 = tx (from gps rx)
+SensorGPS gps(&Uart);
 
 // Logger
 SdFat sd;
 SdFile file;
 Logger logger(sd,file);
 
+// State Estimation
 StateEstimator stateEstimator;
+
+// Trajectory following controllers
+PathController pathController(file);
+VelocityController velocityController;
 MotorDriver motorDriver(MOTOR_L_FORWARD,MOTOR_L_REVERSE,MOTOR_R_FORWARD,MOTOR_R_REVERSE); 
 MotorController motorController;
 
-velocity_setpoint_t desiredVelocities;
+waypoint_t desiredPosition;
 
-// sequence
-#define SEQ_LEN 11
-size_t curridx = 0;
-float seq_v[SEQ_LEN] = {0,0.05,0,0.1,0,0.15,0,0.20,0,0.25,0}; 
-float seq_w[SEQ_LEN] = {0,0,0,0,0,0,0,0,0,0,0};
-int seq_t[SEQ_LEN] = {60,5,20,5,20,5,20,5,20,5,20};
-unsigned long last_trans = 0;
+velocity_setpoint_t desiredVelocities;
 
 
 /**************************************************************************/
@@ -99,60 +94,65 @@ void setup() {
   /* init the stateEstimator with an origin lat/lon */
   stateEstimator.init(0.1,lat,lon);
 
-  logger.include(&stateEstimator);
+  /* init the pathController */
+  pathController.init("traj.txt", &stateEstimator, &desiredPosition);
+  // desiredPosition.x = -10.0;
+  // desiredPosition.y = 10.0;
+  // desiredPosition.heading = 0.0;
+
+  /* Initialize the Logger */
+  logger.include(&gps);
   logger.include(&imu);
+  logger.include(&stateEstimator);
   logger.include(&motorDriver);
   logger.init();
   
   /* Initialise the sensors */
+  gps.init();
+  Serial.println("initialized gps");
   imu.init();
+  Serial.println("initialized imu");
 
-  /* Initialize the motor pins */
-  pinMode(MOTOR_L_FORWARD,OUTPUT);
-  pinMode(MOTOR_L_REVERSE,OUTPUT);
-  pinMode(MOTOR_R_FORWARD,OUTPUT);
-  pinMode(MOTOR_R_REVERSE,OUTPUT);
-
+  delay(60*1000); // delay for 1 min
   Serial.println("starting control loop");
-  controlTimer.begin(controlLoop, LOOP_INTERVAL);
+  controlTimer.begin(controlLoop, LOOP_INTERVAL*1000);
 }
 
 /**************************************************************************/
 void controlLoop(void) {
-  unsigned long current_time = millis();
-  
-  if (current_time - last_loop >= LOOP_INTERVAL) {
-    last_loop = current_time;
-    
-    // handle state transitions
-    if (current_time - last_trans >= seq_t[curridx]*1000) {
-      if (curridx < SEQ_LEN - 1) {
-        curridx++;
-        last_trans = current_time;
-      }
-      Serial.print("switching to state "); Serial.println(curridx);
-    }
+  unsigned long current_time = micros();
 
-    // Gather data from serial sensors
-    imu.read(); // this is a sequence of blocking I2C read calls
-  
-    desiredVelocities.v = seq_v[curridx];
-    desiredVelocities.w = seq_w[curridx];
+  bool newGPSData;
+  bool newIMUData;
 
-    motorController.control(&stateEstimator, &desiredVelocities, &motorDriver);
-    motorDriver.apply();
-    stateEstimator.incorporateControl(&motorDriver);
+  // Gather data from serial sensors
+  newIMUData = imu.read(); // this is a sequence of blocking I2C read calls
+  newGPSData = gps.read(); // this is a sequence of UART reads, bounded by a time
 
-    motorDriver.printState();
-    stateEstimator.printState();
-
-    // Log at every LOG_INTERVAL
-    if (current_time - last_log >= LOG_INTERVAL) {
-      last_log = current_time;
-      logger.log(current_time); 
-    }
+  // Use Data
+  if (newIMUData) {
+    //stateEstimator.incorporateIMU(&imu.state);
   }
+
+  if (newGPSData) {
+    stateEstimator.incorporateGPS(&gps.state);
+  }
+
+  // Controllers
+  pathController.control(&stateEstimator, &desiredPosition);
+  velocityController.control(&stateEstimator, &desiredPosition, &desiredVelocities);
+  motorController.control(&stateEstimator, &desiredVelocities, &motorDriver);
+  stateEstimator.incorporateControl(&motorDriver);
+  
+  motorDriver.apply();
+
+  logger.log(current_time); 
+
+  unsigned long new_time = micros();
+  Serial.print("ISR time (us): ");
+  Serial.println(new_time - current_time);
 }
+
 
 /**************************************************************************/
 void loop() {

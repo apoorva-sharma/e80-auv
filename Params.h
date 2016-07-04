@@ -33,7 +33,7 @@
 
 /* PATH CONTROLLER */
 #define MAX_NUM_WAYPOINTS 20
-#define SUCCESS_RADIUS_SQUARED 0.25 // success radius in meters, squared
+#define SUCCESS_RADIUS_SQUARED 0.0625 // success radius in meters, squared
 
 
 /* TIMING */

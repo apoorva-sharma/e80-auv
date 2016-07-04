@@ -67,7 +67,7 @@ void StateEstimator::incorporateControl(MotorDriver* motorDriver_p)
 
   state.x += vx*loop_period;
   state.y += vy*loop_period;
-  //state.heading += state.w;
+  state.heading += state.w*loop_period;
   state.heading = modfloat(state.heading + M_PI, 2*M_PI) - M_PI;
 }
 

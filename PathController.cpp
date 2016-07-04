@@ -90,6 +90,8 @@ void PathController::control(StateEstimator * stateEstimator_p, waypoint_t * des
     Serial.print("Reached waypoint "); Serial.println(current_waypoint_idx);
     if (current_waypoint_idx < num_waypoints - 1) {
       current_waypoint_idx++;
+    } else {
+      current_waypoint_idx = 0;
     }
   }
 

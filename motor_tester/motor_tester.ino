@@ -59,7 +59,7 @@ size_t curridx = 0;
 int seq_l[SEQ_LEN] = {0,25,0,50,0,75,0,100,0,125,0}; 
 // int seq_l[SEQ_LEN] = {29,30,31,32,33,34,35,36,37,38,0}; 
 int seq_r[SEQ_LEN] = {0,25,0,50,0,75,0,100,0,125,0};
-int seq_t[SEQ_LEN] = {60,5,20,5,20,5,20,5,20,5,20};
+int seq_t[SEQ_LEN] = {10,5,20,5,20,5,20,5,20,5,20};
 // int seq_t[SEQ_LEN] = {2,2,2,2,2,2,2,2,2,2,2};
 unsigned long last_trans = 0;
 
