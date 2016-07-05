@@ -65,11 +65,11 @@ The `control` function in the MotorController takes in the current state and the
 
 These 'speed' values are currently calculated assuming that the dynamics of the robot can be approximated by a simple linear model given in MATLAB syntax as:
 ```
-A*[rpwm; lpwm] = [v; w]
+ [v; w] = A*[rpwm; lpwm]
 ```
 The linear model can be inverted to calculate the motor pwm values:
 ```
-inv(A)*[v; w] = [rpwm; lpwm]
+ [rpwm; lpwm] = inv(A)*[v; w]
 ```
 
 The values of matrix A were estimated by recording a video of the robot motion at various commanded PWM values to each motor, and using point tracking in Adobe After Effects to calculate the trajectories.
