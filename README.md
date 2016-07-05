@@ -20,11 +20,11 @@ The `INF` file describes the schema of the data being logged. It's first line co
 
 The logging actually happens through two functions: `log` and `write`;
 
-The `log` function samples all the `DataSource` objects that were registered to the `Logger` during setup by the `include` function. It calls the `writeDataBytes` function of each `DataSource`, to write the binary values of the variables to be logged to a buffer. Internally, the `Logger` object keeps two queues of 512 byte buffers, one contained empty buffers and one containing full buffers. The `log` function writes the data to an empty buffer obtained from the empty queue, and passes buffers to the full queue once 512 bytes are written. *Note, the `log` function does NOT actually write anything to the SD card.* The fact that this function only writes to a buffer means it takes a consistantly short amount of time (~750us in practice).
+The `log` function samples all the `DataSource` objects that were registered to the `Logger` during setup by the `include` function. It calls the `writeDataBytes` function of each `DataSource`, to write the binary values of the variables to be logged to a buffer. Internally, the `Logger` object keeps two queues of 512 byte buffers, one contained empty buffers and one containing full buffers. The `log` function writes the data to an empty buffer obtained from the empty queue, and passes buffers to the full queue once 512 bytes are written. **Note, the `log` function does NOT actually write anything to the SD card.** The fact that this function only writes to a buffer means it takes a consistantly short amount of time (~750us in practice).
 
 The actual writing to the SD card is handled by the `write` function. This function loops as long as there is space in the LOG file on the SD card available to write. Upon each loop, it checks the full queue for any full 512 byte buffers that need to be written to the SD card. If there is one, it writes it to the SD card. 
 
-*The `Logger` is written such that the main `loop` of the Teensy only calls the `write` function. All other operations that the microcontroller must handle should be placed in a function that is called by a Timer Driven Interrupt (using an `IntervalTimer`, e.g.)* 
+**The `Logger` is written such that the main `loop` of the Teensy only calls the `write` function. All other operations that the microcontroller must handle should be placed in a function that is called by a Timer Driven Interrupt (using an `IntervalTimer`, e.g.)** 
 
 
 ### DataSource
