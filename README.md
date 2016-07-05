@@ -69,7 +69,7 @@ A*[rpwm; lpwm] = [v; w]
 ```
 The linear model can be inverted to calculate the motor pwm values:
 ```
-inv(A)*[rpwm; lpwm] = [v; w]
+inv(A)*[v; w] = [rpwm; lpwm]
 ```
 
 The values of matrix A were estimated by recording a video of the robot motion at various commanded PWM values to each motor, and using point tracking in Adobe After Effects to calculate the trajectories.
