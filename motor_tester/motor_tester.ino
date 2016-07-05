@@ -6,6 +6,9 @@
  ************/
 
 /* Libraries */
+// GPS
+#include <TinyGPS.h>
+
 // Adafruit 9DOF IMU
 #include <Wire.h>
 #include <Adafruit_Sensor.h>
@@ -13,8 +16,6 @@
 #include <Adafruit_L3GD20_U.h>
 #include <Adafruit_9DOF.h>
 #include <SensorIMU.h>
-
-#include <TinyGPS.h>
 
 // State Estimator and Controllers
 #include <StateEstimator.h>
@@ -33,13 +34,11 @@
 
 /* Global Variables */
 // Timing
-unsigned long last_loop = 0;
-unsigned long last_log = 0;
 #define LOOP_INTERVAL 100
-#define LOG_INTERVAL 500
+IntervalTimer controlTimer;
 
 // Sensors
-//IMU
+// IMU
 Adafruit_9DOF                 dof   = Adafruit_9DOF();
 Adafruit_LSM303_Accel_Unified accel = Adafruit_LSM303_Accel_Unified(30301);
 Adafruit_LSM303_Mag_Unified   mag   = Adafruit_LSM303_Mag_Unified(30302);
@@ -93,42 +92,38 @@ void setup() {
   pinMode(MOTOR_L_REVERSE,OUTPUT);
   pinMode(MOTOR_R_FORWARD,OUTPUT);
   pinMode(MOTOR_R_REVERSE,OUTPUT);
+
+  Serial.println("starting control loop");
+  controlTimer.begin(controlLoop, LOOP_INTERVAL*1000);
+}
+
+/**************************************************************************/
+void controlLoop(void) {
+  unsigned long current_time = millis();
+    
+  // handle state transitions
+  if (current_time - last_trans >= seq_t[curridx]*1000) {
+    if (curridx < SEQ_LEN - 1) {
+      curridx++;
+      last_trans = current_time;
+    }
+    Serial.print("switching to state "); Serial.println(curridx);
+  }
+
+  // Gather data from serial sensors
+  imu.read(); // this is a sequence of blocking I2C read calls
+
+  motorDriver.left = seq_l[curridx];
+  motorDriver.right = seq_r[curridx];
+  motorDriver.apply();
+
+  motorDriver.printState();
+  
+  logger.log(current_time); 
 }
 
 /**************************************************************************/
 void loop() {
-  unsigned long current_time = millis();
-  
-  if (current_time - last_loop >= LOOP_INTERVAL) {
-    last_loop = current_time;
-    
-    // handle state transitions
-    if (current_time - last_trans >= seq_t[curridx]*1000) {
-      Serial.print("switching to state "); Serial.println(curridx);
-      if (curridx < SEQ_LEN - 1) {
-        curridx++;
-        last_trans = current_time;
-      }
-    }
-
-    // Gather data from serial sensors
-    imu.read(); // this is a sequence of blocking I2C read calls
-  
-    motorDriver.left = seq_l[curridx];
-    motorDriver.right = seq_r[curridx];
-    motorDriver.apply();
-
-    motorDriver.printState();
-    
-    // Log at every LOG_INTERVAL
-    if (current_time - last_log >= LOG_INTERVAL) {
-      last_log = current_time;
-  
-      unsigned long time_before_log = millis();
-      logger.log(current_time); // this a blocking sequence of comamnds sent over SPI
-      unsigned long time_after_log = millis();
-      Serial.print("Time taken to log row: "); 
-      Serial.println(time_after_log - time_before_log);
-    }
-  }
+  // only work on writing the files
+  logger.write();
 }

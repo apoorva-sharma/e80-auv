@@ -1,3 +1,10 @@
+/************
+ *  AUV Controller
+ *  Author: Apoorva Sharma (asharma@hmc.edu)
+ *  Created: 6 Jun 2016
+ ************/
+
+
 /* Libraries */
 // GPS
 #include <TinyGPS.h>
@@ -106,6 +113,12 @@ void setup() {
   Serial.println("initialized gps");
   imu.init();
   Serial.println("initialized imu");
+
+  /* Initialize the motor pins */
+  pinMode(MOTOR_L_FORWARD,OUTPUT);
+  pinMode(MOTOR_L_REVERSE,OUTPUT);
+  pinMode(MOTOR_R_FORWARD,OUTPUT);
+  pinMode(MOTOR_R_REVERSE,OUTPUT);
 
   delay(60*1000); // delay for 1 min
   Serial.println("starting control loop");

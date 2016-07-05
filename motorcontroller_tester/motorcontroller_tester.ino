@@ -36,10 +36,7 @@
 
 /* Global Variables */
 // Timing
-unsigned long last_loop = 0;
-unsigned long last_log = 0;
 #define LOOP_INTERVAL 100
-#define LOG_INTERVAL 1000
 IntervalTimer controlTimer;
 
 
@@ -114,44 +111,36 @@ void setup() {
   pinMode(MOTOR_R_REVERSE,OUTPUT);
 
   Serial.println("starting control loop");
-  controlTimer.begin(controlLoop, LOOP_INTERVAL);
+  controlTimer.begin(controlLoop, LOOP_INTERVAL*1000);
 }
 
 /**************************************************************************/
 void controlLoop(void) {
   unsigned long current_time = millis();
-  
-  if (current_time - last_loop >= LOOP_INTERVAL) {
-    last_loop = current_time;
     
-    // handle state transitions
-    if (current_time - last_trans >= seq_t[curridx]*1000) {
-      if (curridx < SEQ_LEN - 1) {
-        curridx++;
-        last_trans = current_time;
-      }
-      Serial.print("switching to state "); Serial.println(curridx);
+  // handle state transitions
+  if (current_time - last_trans >= seq_t[curridx]*1000) {
+    if (curridx < SEQ_LEN - 1) {
+      curridx++;
+      last_trans = current_time;
     }
-
-    // Gather data from serial sensors
-    imu.read(); // this is a sequence of blocking I2C read calls
-  
-    desiredVelocities.v = seq_v[curridx];
-    desiredVelocities.w = seq_w[curridx];
-
-    motorController.control(&stateEstimator, &desiredVelocities, &motorDriver);
-    motorDriver.apply();
-    stateEstimator.incorporateControl(&motorDriver);
-
-    motorDriver.printState();
-    stateEstimator.printState();
-
-    // Log at every LOG_INTERVAL
-    if (current_time - last_log >= LOG_INTERVAL) {
-      last_log = current_time;
-      logger.log(current_time); 
-    }
+    Serial.print("switching to state "); Serial.println(curridx);
   }
+
+  // Gather data from serial sensors
+  imu.read(); // this is a sequence of blocking I2C read calls
+
+  desiredVelocities.v = seq_v[curridx];
+  desiredVelocities.w = seq_w[curridx];
+
+  motorController.control(&stateEstimator, &desiredVelocities, &motorDriver);
+  motorDriver.apply();
+  stateEstimator.incorporateControl(&motorDriver);
+
+  motorDriver.printState();
+  stateEstimator.printState();
+
+  logger.log(current_time); 
 }
 
 /**************************************************************************/
