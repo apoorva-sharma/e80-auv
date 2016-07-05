@@ -88,8 +88,8 @@ void setup() {
 
   // Determine GPS origin
   // 34.103835, -117.708172 is the center of the circle in scripps pool
-  float lat = 34.10383;
-  float lon = -117.70817;
+  double lat = 34.103835;
+  double lon = -117.708172;
   
   /* init the stateEstimator with an origin lat/lon */
   stateEstimator.init(0.1,lat,lon);
@@ -120,23 +120,29 @@ void setup() {
 
 /**************************************************************************/
 void controlLoop(void) {
-  unsigned long current_time = micros();
+  unsigned long t0 = micros();
 
   bool newGPSData;
   bool newIMUData;
 
   // Gather data from serial sensors
   newIMUData = imu.read(); // this is a sequence of blocking I2C read calls
+  unsigned long t1 = micros();
+
   newGPSData = gps.read(); // this is a sequence of UART reads, bounded by a time
+  unsigned long t2 = micros();
 
   // Use Data
   if (newIMUData) {
-    //stateEstimator.incorporateIMU(&imu.state);
+    stateEstimator.incorporateIMU(&imu.state);
   }
+  unsigned long t3 = micros();
+
 
   if (newGPSData) {
     stateEstimator.incorporateGPS(&gps.state);
   }
+  unsigned long t4 = micros();
 
   // Controllers
   pathController.control(&stateEstimator, &desiredPosition);
@@ -144,13 +150,19 @@ void controlLoop(void) {
   motorController.control(&stateEstimator, &desiredVelocities, &motorDriver);
   stateEstimator.incorporateControl(&motorDriver);
   
-  motorDriver.apply();
+  //motorDriver.apply();
+  unsigned long t5 = micros();
 
-  logger.log(current_time); 
+  logger.log(t0); 
 
-  unsigned long new_time = micros();
-  Serial.print("ISR time (us): ");
-  Serial.println(new_time - current_time);
+  unsigned long t6 = micros();
+  Serial.print("IMU read time (us): "); Serial.println(t1-t0);
+  Serial.print("GPS read time (us): "); Serial.println(t2-t1);
+  Serial.print("  IMU incorp. time: "); Serial.println(t3-t2);
+  Serial.print("  GPS incorp. time: "); Serial.println(t4-t3);
+  Serial.print("Control calc. time: "); Serial.println(t5-t4);
+  Serial.print("Log to buffer time: "); Serial.println(t6-t5);
+  Serial.print("   Total time (us): "); Serial.println(t6-t0);
 }
 
 

@@ -10,7 +10,7 @@
 #include "Params.h"
 
 SensorGPS::SensorGPS(HardwareSerial * Uart_p_)
-  : DataSource("lat,lon,hdop,nsats","float,float,float,int"), Uart_p(Uart_p_)
+  : DataSource("lat,lon,hdop,nsats","int32,int32,uint16,uint8"), Uart_p(Uart_p_)
 {  
 }
 
@@ -35,6 +35,13 @@ bool SensorGPS::read(void)
   return 0;
 }
 
+void SensorGPS::updateState(void)
+{
+  gps.get_position(&state.lat, &state.lon, &state.age);
+  state.hdop = gps.hdop()*1.0/100;
+  state.num_sat = gps.satellites();
+}
+
 void SensorGPS::printState(void)
 {
   Serial.print("GPS: Lat:"); Serial.print(state.lat);
@@ -54,19 +61,17 @@ void SensorGPS::getCSVString(String * csvStr_p)
 
 size_t SensorGPS::writeDataBytes(unsigned char * buffer, size_t idx)
 {
-  float * data_slot = (float *) (buffer + idx);
-  data_slot[0] = state.lat;
-  data_slot[1] = state.lon;
-  data_slot[2] = state.hdop;
-  idx += 3*sizeof(float);
-  int * int_slot = (int *) (buffer + idx);
-  int_slot[0] = state.num_sat;
-  return idx + sizeof(int);
-}
+  int32_t * int32_slot = (int32_t *) (buffer + idx);
+  int32_slot[0] = state.lat;
+  int32_slot[1] = state.lon;
+  idx += 2*sizeof(int32_t);
 
-void SensorGPS::updateState(void)
-{
-  gps.f_get_position(&state.lat, &state.lon, &state.age);
-  state.hdop = gps.hdop()*1.0/100;
-  state.num_sat = gps.satellites();
+  uint16_t * uint16_slot = (uint16_t *) (buffer + idx);
+  uint16_slot[0] = state.hdop;
+  idx += 1*sizeof(uint16_t);
+
+  uint8_t * uint8_slot = (uint8_t *) (buffer + idx);
+  uint8_slot[0] = state.num_sat;
+  idx += sizeof(uint8_t);
+  return idx;
 }

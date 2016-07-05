@@ -36,18 +36,18 @@ public:
   StateEstimator(void);
 
   // init
-  void init(double loop_period, float orig_lat, float orig_lon);
+  void init(double loop_period, double orig_lat, double orig_lon);
 
   // Data incorporation
   void incorporateIMU(imu_state_t * imu_state_p);
   void incorporateGPS(gps_state_t * gps_state_p);
-  void incorporateControl(MotorDriver* motorDriver_p);
+  void incorporateControl(MotorDriver * motorDriver_p);
 
   // State Access
   state_t state;
   void printState(void);
 
-  void latlonToXY(float lat, float lon, float* x_p, float* y_p);
+  void latlonToXY(double lat, double lon, float* x_p, float* y_p);
 
   // from DataSource
   void getCSVString(String * csvStr_p);
@@ -55,8 +55,8 @@ public:
 
 private:
   double loop_period;
-  float orig_lat;
-  float orig_lon;
+  double orig_lat;
+  double orig_lon;
   float cosOrigLat;
 };
 

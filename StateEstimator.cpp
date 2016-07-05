@@ -22,7 +22,7 @@ StateEstimator::StateEstimator(void)
   : DataSource(String("x,y,heading,v,w"),String("float,float,float,float,float")) // from DataSource
 {}
 
-void StateEstimator::init(double period, float lat, float lon)
+void StateEstimator::init(double period, double lat, double lon)
 {
   loop_period = period;
   orig_lat = lat;
@@ -47,7 +47,7 @@ void StateEstimator::incorporateGPS(gps_state_t * gps_state_p)
   float x;
   float y;
 
-  latlonToXY(gps_state_p->lat, gps_state_p->lon, &x, &y);
+  latlonToXY(gps_state_p->lat/GPS_UNITS_PER_DEG, gps_state_p->lon/GPS_UNITS_PER_DEG, &x, &y);
 
   state.x = x;
   state.y = y;
@@ -100,7 +100,7 @@ size_t StateEstimator::writeDataBytes(unsigned char * buffer, size_t idx)
   return idx + 5*sizeof(float);
 }
 
-void StateEstimator::latlonToXY(float lat, float lon, float* x, float* y)
+void StateEstimator::latlonToXY(double lat, double lon, float* x, float* y)
 {
   *x = (lon-orig_lon)*M_PI/180.0*RADIUS_OF_EARTH_M*cosOrigLat;
   *y = (lat-orig_lat)*M_PI/180.0*RADIUS_OF_EARTH_M;

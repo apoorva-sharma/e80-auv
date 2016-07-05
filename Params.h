@@ -9,6 +9,9 @@
 #ifndef __PARAMS_H__
 #define __PARAMS_H__
 
+/* GPS */
+#define GPS_UNITS_PER_DEG 1000000.0
+
 /* CONTROL MODEL */
 // [a b; c d]*[rpwm; lpwm] = [v; w]
 #define FWD_MODEL_A 0.0006807
@@ -21,13 +24,10 @@
 #define INV_MODEL_C 473.666
 #define INV_MODEL_D -65.6686
 
-// // linear velocity = sum of motor values / LIN_VEL_CONST
-// #define LIN_VEL_CONST 508.0
-
-// // rotational velocity = difference of motor values / ROT_VEL_CONST
-// #define ROT_VEL_CONST 40.4
-
+// maximum linear velocity in m/s
 #define MAX_LIN_VEL 0.1
+
+// maximum rotational velocity in rad/s
 #define MAX_ROT_VEL 0.2
 
 

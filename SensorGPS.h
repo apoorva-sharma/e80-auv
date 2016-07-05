@@ -14,11 +14,11 @@
 #include "DataSource.h"
 
 typedef struct {
-  float lat;
-  float lon;
-  unsigned long age;
-  float hdop;
-  int num_sat;
+  int32_t lat;
+  int32_t lon;
+  uint32_t age;
+  uint16_t hdop;
+  uint8_t num_sat;
 } gps_state_t;
 
 class SensorGPS : public DataSource {

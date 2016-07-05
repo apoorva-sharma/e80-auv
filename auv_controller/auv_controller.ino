@@ -1,9 +1,3 @@
-/************
- *  E80 AUV controller
- *  Author: Apoorva Sharma (asharma@hmc.edu)
- *  Created: 6 Jun 2016
- ************/
-
 /* Libraries */
 // GPS
 #include <TinyGPS.h>
@@ -34,10 +28,10 @@
 
 /* Global Variables */
 // Timing
-unsigned long last_loop = 0;
 unsigned long last_log = 0;
+// control loop interval in ms
 #define LOOP_INTERVAL 100
-#define LOG_INTERVAL 1000
+IntervalTimer controlTimer;
 
 // Sensors
 // IMU
@@ -88,8 +82,8 @@ void setup() {
 
   // Determine GPS origin
   // 34.103835, -117.708172 is the center of the circle in scripps pool
-  float lat = 34.10383;
-  float lon = -117.70817;
+  double lat = 34.103835;
+  double lon = -117.708172;
   
   /* init the stateEstimator with an origin lat/lon */
   stateEstimator.init(0.1,lat,lon);
@@ -113,68 +107,71 @@ void setup() {
   imu.init();
   Serial.println("initialized imu");
 
-  /* Initialize the motor pins */
-  pinMode(MOTOR_L_FORWARD,OUTPUT);
-  pinMode(MOTOR_L_REVERSE,OUTPUT);
-  pinMode(MOTOR_R_FORWARD,OUTPUT);
-  pinMode(MOTOR_R_REVERSE,OUTPUT);
-
-  // wait a minute
-  // Serial.println("waiting 1min before starting...");
-  // delay(60*1000);
-  Serial.println("entering control loop");
+  delay(60*1000); // delay for 1 min
+  Serial.println("starting control loop");
+  controlTimer.begin(controlLoop, LOOP_INTERVAL*1000);
 }
 
 /**************************************************************************/
-void loop() {
-  unsigned long current_time = micros();
-  
-  if (current_time - last_loop >= LOOP_INTERVAL*1000) {
-    last_loop = current_time;
-  
-    bool newGPSData;
-    bool newIMUData;
+void controlLoop(void) {
+  unsigned long t0 = micros();
 
-    // Gather data from serial sensors
-    newIMUData = imu.read(); // this is a sequence of blocking I2C read calls
-    newGPSData = gps.read(); // this is a sequence of UART reads, bounded by a time
-  
-    // Use Data
-    if (newIMUData) {
-      //Serial.print(" ");
-      imu.printState();
-      stateEstimator.incorporateIMU(&imu.state);
-    }
+  bool newGPSData;
+  bool newIMUData;
 
-    if (newGPSData) {
-      //Serial.print(" ");
-      gps.printState();
-      stateEstimator.incorporateGPS(&gps.state);
-    }
+  // Gather data from serial sensors
+  newIMUData = imu.read(); // this is a sequence of blocking I2C read calls
+  unsigned long t1 = micros();
 
-    // Print current state estimate
-    stateEstimator.printState();
-    Serial.print("desired v:");
-    Serial.print(desiredVelocities.v);
-    Serial.print(" w:");
-    Serial.println(desiredVelocities.w);
+  newGPSData = gps.read(); // this is a sequence of UART reads, bounded by a time
+  unsigned long t2 = micros();
 
-    // Controllers
-    pathController.control(&stateEstimator, &desiredPosition);
-    //velocityController.control(&stateEstimator, &desiredPosition, &desiredVelocities);
-    desiredVelocities.v = 0;
-    desiredVelocities.w = MAX_ROT_VEL;
-    motorController.control(&stateEstimator, &desiredVelocities, &motorDriver);
-    motorDriver.apply();
-    stateEstimator.incorporateControl(&motorDriver);
-    
-    motorDriver.printState();
-
-    // Log at every LOG_INTERVAL
-    if (current_time - last_log >= LOG_INTERVAL*1000) {
-      last_log = current_time;
-      logger.log(current_time); // this a blocking sequence of comamnds sent over SPI
-    }
-    
+  // Use Data
+  if (newIMUData) {
+    stateEstimator.incorporateIMU(&imu.state);
   }
+  unsigned long t3 = micros();
+
+
+  if (newGPSData) {
+    stateEstimator.incorporateGPS(&gps.state);
+  }
+  unsigned long t4 = micros();
+
+  // Controllers
+  pathController.control(&stateEstimator, &desiredPosition);
+  velocityController.control(&stateEstimator, &desiredPosition, &desiredVelocities);
+  motorController.control(&stateEstimator, &desiredVelocities, &motorDriver);
+  stateEstimator.incorporateControl(&motorDriver);
+  
+  motorDriver.apply();
+  unsigned long t5 = micros();
+
+  logger.log(t0); 
+
+  unsigned long t6 = micros();
+
+  // Print things
+  // Print current state estimate
+  stateEstimator.printState();
+  Serial.print("desired v:");
+  Serial.print(desiredVelocities.v);
+  Serial.print(" w:");
+  Serial.println(desiredVelocities.w);
+  motorDriver.printState();
+
+  Serial.print("IMU read time (us): "); Serial.println(t1-t0);
+  Serial.print("GPS read time (us): "); Serial.println(t2-t1);
+  Serial.print("  IMU incorp. time: "); Serial.println(t3-t2);
+  Serial.print("  GPS incorp. time: "); Serial.println(t4-t3);
+  Serial.print("Control calc. time: "); Serial.println(t5-t4);
+  Serial.print("Log to buffer time: "); Serial.println(t6-t5);
+  Serial.print("   Total time (us): "); Serial.println(t6-t0);
+}
+
+
+/**************************************************************************/
+void loop() {
+  // only work on writing the files
+  logger.write();
 }
