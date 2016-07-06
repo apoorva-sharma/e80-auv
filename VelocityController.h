@@ -38,9 +38,9 @@ public:
   void control(StateEstimator * stateEstimator_p, waypoint_t * desiredPosition_p, velocity_setpoint_t * desiredVelocity_p);
 
 private:
-  const double k_r = 0.1;
-  const double k_a = 0.25;
-  const double k_b = -0.15;
+  const double k_r = 1;
+  const double k_a = 2.5;
+  const double k_b = -1.5;
 };
 
 #endif

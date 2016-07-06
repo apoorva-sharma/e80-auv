@@ -38,7 +38,7 @@ public:
   // init
   void init(double loop_period, double orig_lat, double orig_lon);
 
-  // Data incorporation
+  // Data incorporation (Kalman filter stuff would go here)
   void incorporateIMU(imu_state_t * imu_state_p);
   void incorporateGPS(gps_state_t * gps_state_p);
   void incorporateControl(MotorDriver * motorDriver_p);

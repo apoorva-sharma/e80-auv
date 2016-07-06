@@ -38,7 +38,7 @@ bool SensorGPS::read(void)
 void SensorGPS::updateState(void)
 {
   gps.get_position(&state.lat, &state.lon, &state.age);
-  state.hdop = gps.hdop()*1.0/100;
+  state.hdop = gps.hdop();
   state.num_sat = gps.satellites();
 }
 

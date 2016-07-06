@@ -66,7 +66,7 @@ velocity_setpoint_t desiredVelocities;
 // sequence
 #define SEQ_LEN 11
 size_t curridx = 0;
-float seq_v[SEQ_LEN] = {0,0.05,0,0.1,0,0.15,0,0.20,0,0.25,0}; 
+float seq_v[SEQ_LEN] = {0,0.1,0,0.25,0,0.5,0,0.75,0,1.0,0}; 
 float seq_w[SEQ_LEN] = {0,0,0,0,0,0,0,0,0,0,0};
 int seq_t[SEQ_LEN] = {60,5,20,5,20,5,20,5,20,5,20};
 unsigned long last_trans = 0;

@@ -18,6 +18,9 @@
 #include <Adafruit_9DOF.h>
 #include <SensorIMU.h>
 
+// Analog Pins
+#include <SensorPin.h>
+
 // State Estimator and Controllers
 #include <StateEstimator.h>
 #include <PathController.h>
@@ -35,7 +38,6 @@
 
 /* Global Variables */
 // Timing
-unsigned long last_log = 0;
 // control loop interval in ms
 #define LOOP_INTERVAL 100
 IntervalTimer controlTimer;
@@ -52,6 +54,10 @@ SensorIMU imu(&dof, &accel, &mag, &gyro);
 HardwareSerial Uart = HardwareSerial(); // pin 1 = rx (from gps tx), pin 2 = tx (from gps rx)
 SensorGPS gps(&Uart);
 
+// Analog Pin
+// assuming sensor1 is connected to analog pin A7
+SensorPin sensor1(A7, "sensor1");
+
 // Logger
 SdFat sd;
 SdFile file;
@@ -67,7 +73,6 @@ MotorDriver motorDriver(MOTOR_L_FORWARD,MOTOR_L_REVERSE,MOTOR_R_FORWARD,MOTOR_R_
 MotorController motorController;
 
 waypoint_t desiredPosition;
-
 velocity_setpoint_t desiredVelocities;
 
 
@@ -93,7 +98,7 @@ void setup() {
   double lon = -117.708172;
   
   /* init the stateEstimator with an origin lat/lon */
-  stateEstimator.init(0.1,lat,lon);
+  stateEstimator.init(1.0/LOOP_INTERVAL,lat,lon);
 
   /* init the pathController */
   pathController.init("traj.txt", &stateEstimator, &desiredPosition);
@@ -106,6 +111,7 @@ void setup() {
   logger.include(&imu);
   logger.include(&stateEstimator);
   logger.include(&motorDriver);
+  logger.include(&sensor1);
   logger.init();
   
   /* Initialise the sensors */
@@ -120,7 +126,7 @@ void setup() {
   pinMode(MOTOR_R_FORWARD,OUTPUT);
   pinMode(MOTOR_R_REVERSE,OUTPUT);
 
-  delay(60*1000); // delay for 1 min
+  delay(60*1000); // delay for 2 sec
   Serial.println("starting control loop");
   controlTimer.begin(controlLoop, LOOP_INTERVAL*1000);
 }
@@ -139,6 +145,8 @@ void controlLoop(void) {
   newGPSData = gps.read(); // this is a sequence of UART reads, bounded by a time
   unsigned long t2 = micros();
 
+  sensor1.read(); // read the analog pin
+
   // Use Data
   if (newIMUData) {
     stateEstimator.incorporateIMU(&imu.state);
@@ -147,13 +155,14 @@ void controlLoop(void) {
 
 
   if (newGPSData) {
-    stateEstimator.incorporateGPS(&gps.state);
+    //stateEstimator.incorporateGPS(&gps.state);
   }
   unsigned long t4 = micros();
 
   // Controllers
   pathController.control(&stateEstimator, &desiredPosition);
   velocityController.control(&stateEstimator, &desiredPosition, &desiredVelocities);
+  // depthController.control(&stateEstimator, &desiredPosition, &desiredVelocities)
   motorController.control(&stateEstimator, &desiredVelocities, &motorDriver);
   stateEstimator.incorporateControl(&motorDriver);
   

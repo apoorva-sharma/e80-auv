@@ -14,24 +14,25 @@
 
 /* CONTROL MODEL */
 // [a b; c d]*[rpwm; lpwm] = [v; w]
-#define FWD_MODEL_A 0.0006807
-#define FWD_MODEL_B 0.00063245
-#define FWD_MODEL_C 0.0049
-#define FWD_MODEL_D -0.0107
+#define FWD_MODEL_A 0.0068
+#define FWD_MODEL_B 0.0063
+#define FWD_MODEL_C 0.0019
+#define FWD_MODEL_D -0.0042
 // [a b; c d]*[v; w] = [rpwm; lpwm]
-#define INV_MODEL_A 1029.0
-#define INV_MODEL_B 61.0123
-#define INV_MODEL_C 473.666
-#define INV_MODEL_D -65.6686
+// this matrix should be inv(FWD_MODEL matrix)
+#define INV_MODEL_A 103.5546
+#define INV_MODEL_B 156.1537
+#define INV_MODEL_C 46.8461
+#define INV_MODEL_D -167.4543
 
 // maximum linear velocity in m/s
-#define MAX_LIN_VEL 0.1
+#define MAX_LIN_VEL 1.0
 
 // maximum rotational velocity in rad/s
 #define MAX_ROT_VEL 0.2
 
 
-/* PATH CONTROLLER */
+/* PAT00H CONTROLLER */
 #define MAX_NUM_WAYPOINTS 20
 #define SUCCESS_RADIUS_SQUARED 0.0625 // success radius in meters, squared
 
@@ -50,7 +51,7 @@
 
 /* MOTOR DYNAMICS */
 // the minimum PWM amount that causes the motors to actually spin
-#define MOTOR_L_DEADZONE 32
+#define MOTOR_L_DEADZONE 34
 #define MOTOR_R_DEADZONE 34 
 // factors (0 < x <= 1) applied to the powers given to the motors
 // to correct for imbalance

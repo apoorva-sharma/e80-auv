@@ -217,6 +217,7 @@ void Logger::write(void)
 
       Serial.print("Logger: wrote block"); Serial.print(bn);
       Serial.print(" in (us): "); Serial.println(t1);
+      Serial.print(" "); Serial.print(fullHead-fullTail); Serial.println("full blocks remaining");
       bn++;
     }
     interrupts();
