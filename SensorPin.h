@@ -4,6 +4,8 @@
  * Author: Apoorva Sharma (asharma@hmc.edu)
  *
  * Created on 5 July 2016
+ * 
+ * TODO: test this class
  */
 
 #ifndef __SENSOR_PIN_H__

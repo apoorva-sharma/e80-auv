@@ -4,6 +4,10 @@
  * Author: Apoorva Sharma (asharma@hmc.edu)
  *
  * Created on 9 June 2016
+ * 
+ * TODO: 
+ *  - perhaps restructure to remove the need for interrupts
+ *  - change write() function to not have a blocking loop
  */
 
 #ifndef __LOGGER_H__
@@ -42,7 +46,7 @@ public:
   // records a row of data with time value as given
   void log(unsigned long time_val);
 
-  // writes buffered data to file. should be called as often as possible
+  // writes buffered data to file
   void write(void);
 
 private:

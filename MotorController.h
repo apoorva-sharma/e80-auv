@@ -4,6 +4,10 @@
  * Author: Apoorva Sharma (asharma@hmc.edu)
  *
  * Created on 8 June 2016
+ *
+ * TODO:
+ *  - add a depth setpoint as an argument to control, and use it to set the z-motor's thrust value
+ *    in the MotorDriver.
  */
 
 #ifndef __MOTOR_CONTROLLER_H__

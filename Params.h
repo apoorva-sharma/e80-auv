@@ -4,6 +4,9 @@
  * Author: Apoorva Sharma (asharma@hmc.edu)
  *
  * Created on 8 June 2016
+ * 
+ * TODO: 
+ *  - determine a good way of estimating control model parameters
  */
 
 #ifndef __PARAMS_H__
@@ -32,7 +35,7 @@
 #define MAX_ROT_VEL 0.2
 
 
-/* PAT00H CONTROLLER */
+/* PATH CONTROLLER */
 #define MAX_NUM_WAYPOINTS 20
 #define SUCCESS_RADIUS_SQUARED 0.0625 // success radius in meters, squared
 
@@ -53,9 +56,5 @@
 // the minimum PWM amount that causes the motors to actually spin
 #define MOTOR_L_DEADZONE 34
 #define MOTOR_R_DEADZONE 34 
-// factors (0 < x <= 1) applied to the powers given to the motors
-// to correct for imbalance
-#define MOTOR_L_FACTOR 0.541
-#define MOTOR_R_FACTOR 1.0
 
 #endif

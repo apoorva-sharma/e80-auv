@@ -4,6 +4,9 @@
  * Author: Apoorva Sharma (asharma@hmc.edu)
  *
  * Created on 8 June 2016
+ * 
+ * TODO:
+ *  - tune the proportional control gains (k_r, k_a, k_b)
  */
 
 #ifndef __VELOCITY_CONTROLLER_H__

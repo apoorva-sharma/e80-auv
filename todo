@@ -1,15 +1,3 @@
 todo
 
-make sensor init's return success status
-
-failsafes (e.g., no sd card, no sensor, etc.)
-
-write and test analog pin reader class SensorPin.h
-
-test controller in tank
-test controller in pool
-
-get better model of robot dynamics
-
-
-update documentation
+write cleaner failsafes (e.g., no sd card, no sensor, etc.)

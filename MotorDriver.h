@@ -4,6 +4,9 @@
  * Author: Apoorva Sharma (asharma@hmc.edu)
  *
  * Created on 8 June 2016
+ *
+ * TODO:
+ *  - include the third motor
  */
 
 #ifndef __MOTOR_DRIVER_H__

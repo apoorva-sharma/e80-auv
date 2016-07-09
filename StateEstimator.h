@@ -4,6 +4,12 @@
  * Author: Apoorva Sharma (asharma@hmc.edu)
  *
  * Created on 8 June 2016
+ *
+ * TODO: 
+ *  - fix incorporateGPS function
+ *  - restructure incorporation functions to be better suited
+ *    for Kalman Filter implementation (have an predict function 
+ *    and correction function)
  */
 
 #ifndef __STATE_ESTIMATOR_H__
